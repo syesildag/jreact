@@ -1,0 +1,15 @@
+{
+  "name": "serkan",
+  "version": "1.0.0",
+  "description": "serkan spring test",
+  "main": "index.js",
+  "scripts": {
+    "main": "tsc",
+    "test": "tsc && mocha"
+  },
+  "author": "Serkan YESILDAG",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
