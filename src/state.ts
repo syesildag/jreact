@@ -2,6 +2,8 @@
 /// <reference path="../typings/es6-promise/es6-promise.d.ts"/>
 /// <reference path="./todoApp.ts"/>
 /// <reference path="./utils.ts"/>
+import * as Utils from "./utils";
+import * as Counter from "./counter";
 
 declare class Freezer<S> {
   constructor(o: S);
@@ -10,14 +12,14 @@ declare class Freezer<S> {
   trigger(s: string, ...o: any[]): void;
 }
 
-interface ITodoUI {
-  status?: Serkan.Status,
+export interface ITodoUI {
+  status?: Counter.Status,
   input?: string,
 
   set?(a: ITodoUI): ITodo
 }
 
-interface ITodoModel {
+export interface ITodoModel {
   title?: string,
   id?: string,
   completed?: boolean
@@ -25,7 +27,7 @@ interface ITodoModel {
   set?(a: ITodoModel): ITodo
 }
 
-interface ITodo {
+export interface ITodo {
   model: ITodoModel,
   ui?: ITodoUI,
   title?: string,
@@ -34,25 +36,27 @@ interface ITodo {
   now?(): void
 }
 
-interface ITodos extends Array<ITodo> {
+export interface ITodos extends Array<ITodo> {
   pivot?(): ITodos
 }
 
 interface IState {
   todos?: ITodos;
   todoInput?: string;
-  status?: Serkan.Status;
-  filter?: Serkan.Filter;
+  status?: Counter.Status;
+  filter?: Counter.Filter;
 
   set?(a: IState): IState;
   now?(): void;
 }
 
-var State = new Freezer<IState>(Utils.store(Serkan.FREEZER_TODOS) || {
+export default State;
+
+var State = new Freezer<IState>(Utils.store(Counter.FREEZER_TODOS) || {
   todos: [],
   todoInput: '',
-  status: Serkan.Status.READY,
-  filter: Serkan.Filter.ALL
+  status: Counter.Status.READY,
+  filter: Counter.Filter.ALL
 });
 
 /**
@@ -63,14 +67,14 @@ State.on('todo:create', function(text: string) {
 
   // We set the app into a loading status
   // to let the user know
-  State.get().set({ status: Serkan.Status.LOADING });
+  State.get().set({ status: Counter.Status.LOADING });
 
   // Call the fake server
   setTimeout(function() {
     State.get()
     // Restore the default status for the app and clean
     // the input
-      .set({ status: Serkan.Status.READY, todoInput: '' })
+      .set({ status: Counter.Status.READY, todoInput: '' })
 
     // Creates the new todo
       .todos.push({
@@ -80,14 +84,14 @@ State.on('todo:create', function(text: string) {
           completed: false
         },
         ui: {
-          status: Serkan.Status.READY,
+          status: Counter.Status.READY,
           input: text
         }
       });
 
     // Save the state in localStorage
-    Utils.store(Serkan.FREEZER_TODOS, State.get());
-  }, Serkan.LAG);
+    Utils.store(Counter.FREEZER_TODOS, State.get());
+  }, Counter.LAG);
 });
 
 /**
@@ -100,7 +104,7 @@ State.on('todo:delete', function(todo: ITodo) {
   // the arguments. We can use directly instead of
   // making use of the state.
   var updated = todo.pivot()
-    .ui.set({ status: Serkan.Status.DELETING });
+    .ui.set({ status: Counter.Status.DELETING });
 
   setTimeout(function() {
     // We just remove the todo from teh list
@@ -108,8 +112,8 @@ State.on('todo:delete', function(todo: ITodo) {
       .todos.splice(getTodoIndex(updated), 1);
 
     // Save the state in localStorage
-    Utils.store(Serkan.FREEZER_TODOS, State.get());
-  }, Serkan.LAG);
+    Utils.store(Counter.FREEZER_TODOS, State.get());
+  }, Counter.LAG);
 });
 
 /**
@@ -123,7 +127,7 @@ State.on('todo:update', function(todo: ITodo, text: string) {
   // Set the todo in an 'updating' state
   // to let the user know.
   // The updated node is returned.
-  var updated = todo.pivot().ui.set({ status: Serkan.Status.UPDATING });
+  var updated = todo.pivot().ui.set({ status: Counter.Status.UPDATING });
 
   // Call the server
   setTimeout(function() {
@@ -134,12 +138,12 @@ State.on('todo:update', function(todo: ITodo, text: string) {
     // todo instead the updated child.
     todo.pivot()
       .model.set({ title: text })
-      .ui.set({ status: Serkan.Status.READY })
+      .ui.set({ status: Counter.Status.READY })
     ;
 
     // Save the state in localStorage
-    Utils.store(Serkan.FREEZER_TODOS, State.get());
-  }, Serkan.LAG);
+    Utils.store(Counter.FREEZER_TODOS, State.get());
+  }, Counter.LAG);
 });
 
 /**
@@ -150,7 +154,7 @@ State.on('todo:filter', function(filter) {
   State.get().set({ filter: filter });
 
   // Save the state in localStorage
-  Utils.store(Serkan.FREEZER_TODOS, State.get());
+  Utils.store(Counter.FREEZER_TODOS, State.get());
 });
 
 /**
@@ -166,7 +170,7 @@ State.on('todo:clearCompleted', function() {
     if (todos[i].model.completed) {
       // Pivoting makes us to have always the updated
       // reference to todos.
-      todos[i].ui.set({ status: Serkan.Status.LOADING });
+      todos[i].ui.set({ status: Counter.Status.LOADING });
       todos = State.get().todos;
       toRemove.push(i);
     }
@@ -182,8 +186,8 @@ State.on('todo:clearCompleted', function() {
     });
 
     // Save the state in localStorage
-    Utils.store(Serkan.FREEZER_TODOS, State.get());
-  }, Serkan.LAG);
+    Utils.store(Counter.FREEZER_TODOS, State.get());
+  }, Counter.LAG);
 });
 
 /**
@@ -194,7 +198,7 @@ State.on('todo:toggle', function(todo: ITodo) {
   todo.model.set({ completed: !todo.model.completed });
 
   // Save the state in localStorage
-  Utils.store(Serkan.FREEZER_TODOS, State.get());
+  Utils.store(Counter.FREEZER_TODOS, State.get());
 });
 
 /**

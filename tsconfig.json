@@ -6,9 +6,7 @@
     "jsx": "react",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "outFile": "test/test.js"
-  },
+    "experimentalDecorators": true  },
   "exclude": [
     "src",
     "node_modules"

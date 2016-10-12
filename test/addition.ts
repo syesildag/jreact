@@ -1,13 +1,14 @@
 /* global describe, it, beforeEach */
 /// <reference path="../typings/node/node.d.ts" />
 /// <reference path="../typings/mocha/mocha.d.ts" />
-/// <reference path="../typescript/utils.ts"/>
 
 'use strict';
 
 //SERKAN
 
 var assert = require('assert');
+
+import Utils = require('../src/utils');
 
 describe('addition', function() {
   var self = this;
