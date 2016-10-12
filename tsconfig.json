@@ -10,7 +10,7 @@
     "outFile": "test/test.js"
   },
   "exclude": [
-    "typescript",
+    "src",
     "node_modules"
   ]
 }
