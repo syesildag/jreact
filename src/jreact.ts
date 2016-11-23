@@ -1,26 +1,34 @@
 /// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="./utils.ts"/>
+/**
+ * @author SYESILDAG
+ * https://github.com/syesildag/jreact
+ */
 module JReact {
   'use strict';
 
   export var DEBUG: boolean = false;
 
-  const STYLE: string = 'style';
-  const KEY: string = 'data-key';
   const INSTANCE: string = 'instance';
+
+  export const KEY: string = 'data-key';
+  const STYLE: string = 'style';
+  const CLASS: string = 'class';
 
   var ATTRIBUTE_MAP: any = {
     key: KEY,
     style: STYLE,
-    className: 'class',
-    onChange: 'change',
-    onClick: 'click',
-    onMouseUp: 'mouseup',
-    onMouseDown: 'mousedown',
-    onMouseMove: 'mousemove',
-    onTouchStart: 'touchstart',
-    onTouchEnd: 'touchend',
-    onTouchMove: 'touchmove',
-    onContextMenu: 'contextmenu'
+    className: CLASS,
+    colspan: 'colspan',
+    change: 'change',
+    click: 'click',
+    mouseup: 'mouseup',
+    mousedown: 'mousedown',
+    mousemove: 'mousemove',
+    touchstart: 'touchstart',
+    touchend: 'touchend',
+    touchmove: 'touchmove',
+    contextMenu: 'contextmenu'
   };
 
   /**
@@ -42,66 +50,22 @@ module JReact {
     }
   }
 
-  const SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
-  export function camelCase(name: string) {
-    return name
-      .replace(SPECIAL_CHARS_REGEXP, function(_, separator, letter, offset) {
-        return offset ? letter.toUpperCase() : letter;
-      });
-  }
-
-  const SNAKE_CASE_REGEXP = /[A-Z]/g;
-  export function snake_case(name: string, separator = '_') {
-    return name.replace(SNAKE_CASE_REGEXP, function(letter, pos) {
-      return (pos ? separator : '') + letter.toLowerCase();
-    });
-  }
-  
-  /**
-   * A consistent way of creating unique IDs in angular. The ID is a sequence of alpha numeric
-   * characters such as '012ABC'. The reason why we are not using simply a number counter is that
-   * the number string gets longer over time, and it can also overflow, where as the nextId
-   * will grow much slower, it is a string, and it will never overflow.
-   *
-   * @returns {string} an unique alpha-numeric string
-   */
-  var uid = ['0', '0', '0'];
-  export function nextUid() {
-    var index = uid.length, digit: number;
-    while (index--) {
-      digit = uid[index].charCodeAt(0);
-      if (digit == 57 /*'9'*/) {
-        uid[index] = 'A';
-        return uid.join('');
-      }
-      if (digit == 90 /*'Z'*/) {
-        uid[index] = '0';
-      }
-      else {
-        uid[index] = String.fromCharCode(digit + 1);
-        return uid.join('');
-      }
-    }
-    uid.unshift('0');
-    return uid.join('');
-  }
-
   export function getInstance<P extends Props>(el: JQuery): Component<P, any, any, any> {
-    //return el.triggerHandler(SELF);
     return el.data(INSTANCE);
   }
 
   function setInstance<P extends Props>(el: JQuery, comp: Component<P, any, any, any>) {
     el.data(INSTANCE, comp);
-    //el.bind(SELF, function() { return comp });
   }
 
-  function getInstanceKey<P extends Props>(comp: Component<P, any, any, any>): string {
+  export function getInstanceKey<P extends Props>(comp: Component<P, any, any, any>): string {
+    return getInstanceKeyFromTag(comp.getTag(), comp.props.key);
+  }
 
-    var componentKey = comp.getTag(),
-      key = comp.props.key;
+  export function getInstanceKeyFromTag(tag: string, key: Key): string {
+    var componentKey = tag;
 
-    if (testString(key))
+    if (Utils.testString(key))
       componentKey += '[' + KEY + '=' + key + ']';
 
     return componentKey;
@@ -113,29 +77,13 @@ module JReact {
 
     if (Object.keys(myProps).length === Object.keys(nextProps).length)
       return Object.keys(myProps).every(function(prop) {
-        return myProps[prop] === nextProps[prop];
+        return Utils.isFunction(myProps[prop]) || myProps[prop] === nextProps[prop];
       });
 
     return false;
   }
 
-  export function noop() { }
-
-  export function testString(value: any): boolean {
-    return value != null && value !== '';
-  }
-
-  export function isString(value: any): boolean {
-    return typeof value === "string";
-  }
-
-  export function isNumber(value: any): boolean {
-    return typeof value === "number";
-  }
-
-  export function isStringOrNumber(value: any): boolean {
-    return isString(value) || isNumber(value);
-  }
+  export function NOOP() { }
 
   export function createElement<P extends Props, C extends Component<P, any, any, any>>(
     jrc: { new (props: P): C },
@@ -152,18 +100,18 @@ module JReact {
 
     if (args.length > 1) {
 
-      if (isStringOrNumber(args[0]))
+      if (Utils.isStringOrNumber(args[0]))
         throw new Error('multiple children with string or number');
 
       args.forEach(function(child) {
 
-        if (isStringOrNumber(child))
+        if (Utils.isStringOrNumber(child))
           return;
 
         var comp = <Component<P, any, any, any>>child,
           componentKey: string;
 
-        if (!testString(comp.props.key))
+        if (!Utils.testString(comp.props.key))
           throw new Error('partially defined child prop keys: ' + jrc);
 
         componentKey = getInstanceKey(comp);
@@ -198,35 +146,35 @@ module JReact {
             el.bind(keyMap, value);
         }
         else if (key === STYLE) {
-          Object.keys(value).forEach((style) => {
+          Object.keys(value).forEach(style => {
             el.css(style, remove ? '' : value[style]);
           });
         }
-        else {
-          if (remove)
-            el.removeAttr(keyMap);
-          else
-            el.attr(keyMap, value);
-        }
+        else if (remove)
+          el.removeAttr(keyMap);
+        else
+          el.attr(keyMap, value);
       }
     }, comp);
   }
 
-  function render<P extends Props>(comp: Component<P, any, any, any>, mount: JQuery, sibling?: JQuery): JQuery {
+  export function render<P extends Props>(comp: Component<P, any, any, any>, mount: JQuery, sibling?: JQuery): JQuery {
     var childSibling: JQuery,
       nextSibling: JQuery,
       renderResult: Component<any, any, any, any>,
       oldComp: Component<any, any, any, any>,
       el: JQuery,
       first = false,
+      alreadyMounted = false,
       children: ComponentArray = [],
       childKeyElements: { [index: string]: boolean } = {},
       instanceKey: string = getInstanceKey(comp),
       oldHTML: string;
 
     el = mount.children(instanceKey);
+    alreadyMounted = el.length > 0;
 
-    if (el.length) {
+    if (alreadyMounted && (oldComp = getInstance(el))) {
 
       if (JReact.DEBUG)
         oldHTML = el.get(0).outerHTML;
@@ -241,12 +189,8 @@ module JReact {
         }
       }
 
-      oldComp = getInstance(el);
       if (!oldComp.shouldComponentUpdate(comp.props, comp.state))
         return el;
-
-      if (typeof comp.state !== 'undefined')
-        oldComp.state = comp.state;
 
       oldComp.componentWillReceiveProps(comp.props);
 
@@ -258,21 +202,25 @@ module JReact {
     } else {
 
       first = true;
-      el = jQuery('<' + comp.getTag() + '/>');
+      if (!alreadyMounted)
+        el = jQuery('<' + comp.getTag() + '/>');
       comp.setElement(el);
       setInstance(el, comp);
 
       comp.componentWillMount();
 
       updateProps(comp, el);
-
-      if (sibling)
-        sibling.after(el);
-      else
-        mount.prepend(el);
+      if (!alreadyMounted) {
+        if (sibling)
+          sibling.after(el);
+        else
+          mount.append(el);
+      }
     }
 
-    if (comp.props.dangerouslySetInnerHTML)
+    if (comp.props.templateID)
+      comp.renderTemplate();
+    else if (comp.props.dangerouslySetInnerHTML)
       el.html(comp.props.dangerouslySetInnerHTML.__html);
     else {
       renderResult = comp.render();
@@ -296,10 +244,11 @@ module JReact {
       });
 
       //render children
+      comp.refs = {};
       children.forEach(function(child) {
         if (child instanceof Component) {
           childSibling = render(child, el, childSibling);
-          if (testString(child.props.ref))
+          if (Utils.testString(child.props.ref))
             comp.refs[child.props.ref] = childSibling;
         }
         else
@@ -320,16 +269,18 @@ module JReact {
     return el;
   }
 
-  export function renderDOM<P extends Props>(comp: Component<P, any, any, any>, m: JQuery) {
+  export function renderDOM<P extends Props>(comp: Component<P, any, any, any>, m: JQuery): JQuery {
     var el: JQuery = render(comp, m);
 
     m.children().each(function() {
       if (this !== el[0])
         unmountElement(jQuery(this));
     });
+
+    return el;
   }
 
-  function unmountElement(jc: JQuery) {
+  export function unmountElement(jc: JQuery) {
     var old = getInstance(jc), promise: any;
     if (old) {
       promise = old.componentWillUnmount();
@@ -342,15 +293,15 @@ module JReact {
     else jc.remove();
   }
 
-  type Key = string | number;
-  type ComponentArray = Array<string|number|Component<any, any, any, any>>;
+  export type Key = string | number;
+  export type ComponentArray = Array<string|number|Component<any, any, any, any>>;
 
   export interface Props {
     children?: ComponentArray;
     key?: Key;
     ref?: string;
     className?: string;
-    state?: any;
+    templateID?: string;
     style?: React.CSSProperties;
     dangerouslySetInnerHTML?: {
       __html: string;
@@ -368,8 +319,6 @@ module JReact {
       if (defaultProps)
         props = jQuery.extend(true, {}, defaultProps, props);
       this.props = props;
-      if (typeof props.state !== 'undefined')
-        this.state = props.state;
     }
 
     protected getDefaultProps(): P {
@@ -388,11 +337,11 @@ module JReact {
       this.element = element;
     }
 
-    public getState(): any {
+    protected getState(): any {
       return this.state;
     }
 
-    public setState(state: S) {
+    protected setState(state: S) {
       this.state = state;
     }
 
@@ -400,7 +349,9 @@ module JReact {
       return null;
     }
 
-    public reduce(state: S, action: Action<A, L>): S {
+    public renderTemplate() { }
+
+    protected reduce(state: S, action: Action<A, L>): S {
       return state;
     }
 
@@ -408,11 +359,14 @@ module JReact {
       return (typeof nextState !== 'undefined' && !isSame(this.state, nextState)) || !isSame(this.props, nextProps);
     }
 
-    public dispatch(action: Action<A, L>): void {
+    protected dispatch(action: Action<A, L>): void {
       let nextState: S = this.reduce(this.state, action);
-      if(this.shouldComponentUpdate(this.props, nextState)) {
+      if (this.shouldComponentUpdate(this.props, nextState)) {
         this.setState(nextState);
-        JReact.renderDOM(this.render(), this.element);
+        let renderResult = this.render();
+        if (renderResult)
+          JReact.renderDOM(renderResult, this.element);
+        else this.renderTemplate();
       }
     }
 
@@ -440,14 +394,100 @@ module JReact {
 
       if (this.props.children
         && this.props.children.length === 1
-        && isStringOrNumber(this.props.children[0])
+        && Utils.isStringOrNumber(this.props.children[0])
         && nextProps
         && nextProps.children.length === 1
-        && isStringOrNumber(nextProps.children[0])
+        && Utils.isStringOrNumber(nextProps.children[0])
         && this.props.children[0] == nextProps.children[0])
         return false;
 
       return super.shouldComponentUpdate(nextProps, nextState);
+    }
+  }
+
+  export interface AutoTemplateProps<D, T, C extends AutoTemplateProps<T, any, any>> extends JReact.Props {
+    name?: string;
+    nameSpace?: string;
+    tag?: string;
+    data?: D;
+    components?: Array<C>;
+  }
+
+  export class AutoTemplate<D, T, P extends AutoTemplateProps<D, T, any>, S, A, L> extends JReact.Component<P, S, A, L> {
+
+    constructor(props: P) {
+      super(props);
+    }
+
+    public getTag(): string {
+      return this.props.tag;
+    }
+
+    protected getComponents(): Array<P> {
+      return this.props.components;
+    }
+
+    protected getComponentByKey(key: Key): P {
+      let components = this.getComponents();
+
+      if (components)
+        for (let component of components)
+          if (component.key === key)
+            return component;
+
+      return null;
+    }
+
+    protected getTemplateHTML(): string {
+      return JReact.getTemplateContent(this.props.templateID);
+    }
+
+    public renderTemplate() {
+      let templateHTML = this.getTemplateHTML();
+      this.preRenderTemplate();
+      if (!Utils.isUndefined(templateHTML))
+        this.getElement().html(templateHTML);
+      this.postRenderTemplate();
+    }
+
+    protected preRenderTemplate() {
+      let childKeyElements: { [index: string]: boolean } = {}, components = this.getComponents();
+      
+      //create children hash
+      if (components)
+        components.forEach((component: P) => {
+          childKeyElements[JReact.getInstanceKeyFromTag(component.tag, component.key)] = true;
+        });
+        
+      //unmount non-existant children
+      this.getElement().children('[' + JReact.KEY + ']').each(function() {
+        var jc = jQuery(this);
+        if (!childKeyElements[JReact.getInstanceKey(JReact.getInstance(jc))])
+          JReact.unmountElement(jc);
+      });
+
+      this._preRenderTemplate();
+    }
+
+    protected _preRenderTemplate() {
+    }
+
+    protected postRenderTemplate() {
+
+      let components = this.getComponents(), sibling: JQuery = null, templateHTML = this.getTemplateHTML();
+
+      //render children
+      this.refs = {};
+      if (components)
+        components.forEach((component: P) => {
+          sibling = JReact.render(JReact.createElement(eval(component.nameSpace + "." + component.name), component), this.getElement(), Utils.isUndefined(templateHTML) ? sibling : undefined);
+          this.refs[component.key] = sibling;
+        });
+
+      this._postRenderTemplate();
+    }
+
+    protected _postRenderTemplate() {
     }
   }
 
@@ -456,18 +496,34 @@ module JReact {
   }
 
   export interface DOMAttributes extends Props {
-    onClick?: JQueryEventHandler;
-    onChange?: JQueryEventHandler;
-    onMouseUp?: JQueryEventHandler;
-    onMouseDown?: JQueryEventHandler;
-    onMouseMove?: JQueryEventHandler;
-    onTouchStart?: JQueryEventHandler;
-    onTouchEnd?: JQueryEventHandler;
-    onTouchMove?: JQueryEventHandler;
-    onContextMenu?: JQueryEventHandler;
+    colspan?: number;
+    change?: JQueryEventHandler;
+    click?: JQueryEventHandler;
+    mouseup?: JQueryEventHandler;
+    mousedown?: JQueryEventHandler;
+    mousemove?: JQueryEventHandler;
+    touchstart?: JQueryEventHandler;
+    touchend?: JQueryEventHandler;
+    touchmove?: JQueryEventHandler;
+    contextmenu?: JQueryEventHandler;
   }
-  
+
   export interface DomFactory {
     (props: DOMAttributes, ...args: ComponentArray): ComponentDOM<DOMAttributes>
+  }
+
+  let templateCache: { [index: string]: string } = {};
+
+  export function getTemplateContent(id: string) {
+    return templateCache[id];
+  }
+
+  export function bootstrap(document: Document) {
+    var script: HTMLScriptElement, scriptType = 'text/html';
+    for (var index = 0; index < document.scripts.length; index++) {
+      script = document.scripts[index] as HTMLScriptElement;
+      if (script.type === scriptType && script.id)
+        templateCache[script.id] = script.text;
+    }
   }
 }

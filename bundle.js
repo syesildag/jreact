@@ -3,27 +3,294 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Utils;
+(function (Utils) {
+    'use strict';
+    function uuid() {
+        /*jshint bitwise:false */
+        var i, random;
+        var uuid = '';
+        for (i = 0; i < 32; i++) {
+            random = Math.random() * 16 | 0;
+            if (i === 8 || i === 12 || i === 16 || i === 20) {
+                uuid += '-';
+            }
+            uuid += (i === 12 ? 4 : (i === 16 ? (random & 3 | 8) : random))
+                .toString(16);
+        }
+        return uuid;
+    }
+    Utils.uuid = uuid;
+    function pluralize(count, word) {
+        return count === 1 ? word : word + 's';
+    }
+    Utils.pluralize = pluralize;
+    function store(namespace, data) {
+        if (data)
+            return localStorage.setItem(namespace, JSON.stringify(data));
+        var store = localStorage.getItem(namespace);
+        return store ? JSON.parse(store) : null;
+    }
+    Utils.store = store;
+    function extend() {
+        var newObj = {};
+        for (var i = 0; i < arguments.length; i++) {
+            var obj = arguments[i];
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    newObj[key] = obj[key];
+                }
+            }
+        }
+        return newObj;
+    }
+    Utils.extend = extend;
+    /**
+    * A consistent way of creating unique IDs in angular. The ID is a sequence of alpha numeric
+    * characters such as '012ABC'. The reason why we are not using simply a number counter is that
+    * the number string gets longer over time, and it can also overflow, where as the nextId
+    * will grow much slower, it is a string, and it will never overflow.
+    *
+    * @returns {string} an unique alpha-numeric string
+    */
+    var uid = ['0', '0', '0'];
+    function nextUid() {
+        var index = uid.length, digit;
+        while (index--) {
+            digit = uid[index].charCodeAt(0);
+            if (digit == 57 /*'9'*/) {
+                uid[index] = 'A';
+                return uid.join('');
+            }
+            if (digit == 90 /*'Z'*/) {
+                uid[index] = '0';
+            }
+            else {
+                uid[index] = String.fromCharCode(digit + 1);
+                return uid.join('');
+            }
+        }
+        uid.unshift('0');
+        return uid.join('');
+    }
+    Utils.nextUid = nextUid;
+    var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
+    function camelCase(name) {
+        return name
+            .replace(SPECIAL_CHARS_REGEXP, function (_, separator, letter, offset) {
+            return offset ? letter.toUpperCase() : letter;
+        });
+    }
+    Utils.camelCase = camelCase;
+    var SNAKE_CASE_REGEXP = /[A-Z]/g;
+    function snake_case(name, separator) {
+        separator = separator || '_';
+        return name.replace(SNAKE_CASE_REGEXP, function (letter, pos) {
+            return (pos ? separator : '') + letter.toLowerCase();
+        });
+    }
+    Utils.snake_case = snake_case;
+    // Returns a function, that, as long as it continues to be invoked, will not
+    // be triggered. The function will be called after it stops being called for
+    // N milliseconds. If `immediate` is passed, trigger the function on the
+    // leading edge, instead of the trailing.
+    function debounce(func, wait, immediate) {
+        var timeout;
+        return function debounced() {
+            var context = this, args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                timeout = null;
+                if (!immediate)
+                    func.apply(context, args);
+            }, wait);
+            if (immediate && !timeout)
+                func.apply(context, args);
+        };
+    }
+    Utils.debounce = debounce;
+    // Returns a function that can only be triggered every `delay` milliseconds.
+    // In other words, the function will not be called unless it has been more
+    // than `delay` milliseconds since the last call.
+    function throttle(func, delay) {
+        var recent;
+        return function throttled() {
+            var context = this;
+            var args = arguments;
+            var now = Utils.now();
+            if (!recent || recent - now > delay) {
+                func.apply(context, args);
+                recent = now;
+            }
+        };
+    }
+    Utils.throttle = throttle;
+    Utils.now = typeof window !== 'undefined' && window && window.performance ? window.performance.now.bind(window.performance) : Date.now;
+    /**
+     * @ngdoc function
+     * @name angular.isUndefined
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is undefined.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is undefined.
+     */
+    function isUndefined(value) { return typeof value === 'undefined'; }
+    Utils.isUndefined = isUndefined;
+    /**
+     * @ngdoc function
+     * @name angular.isDefined
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is defined.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is defined.
+     */
+    function isDefined(value) { return typeof value !== 'undefined'; }
+    Utils.isDefined = isDefined;
+    /**
+     * @ngdoc function
+     * @name angular.isObject
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is an `Object`. Unlike `typeof` in JavaScript, `null`s are not
+     * considered to be objects. Note that JavaScript arrays are objects.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is an `Object` but not `null`.
+     */
+    function isObject(value) { return value != null && typeof value === 'object'; }
+    Utils.isObject = isObject;
+    /**
+     * @ngdoc function
+     * @name angular.isString
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `String`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `String`.
+     */
+    function isString(value) { return typeof value === 'string'; }
+    Utils.isString = isString;
+    function testString(value) {
+        return value != null && value !== '';
+    }
+    Utils.testString = testString;
+    /**
+     * @ngdoc function
+     * @name angular.isNumber
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `Number`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Number`.
+     */
+    function isNumber(value) { return typeof value === 'number'; }
+    Utils.isNumber = isNumber;
+    function isStringOrNumber(value) {
+        return isString(value) || isNumber(value);
+    }
+    Utils.isStringOrNumber = isStringOrNumber;
+    /**
+     * @ngdoc function
+     * @name angular.isDate
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a value is a date.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Date`.
+     */
+    function isDate(value) {
+        return toString.call(value) === '[object Date]';
+    }
+    Utils.isDate = isDate;
+    /**
+     * @ngdoc function
+     * @name angular.isFunction
+     * @module ng
+     * @kind function
+     *
+     * @description
+     * Determines if a reference is a `Function`.
+     *
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `Function`.
+     */
+    function isFunction(value) { return typeof value === 'function'; }
+    Utils.isFunction = isFunction;
+    /**
+     * Determines if a value is a regular expression object.
+     *
+     * @private
+     * @param {*} value Reference to check.
+     * @returns {boolean} True if `value` is a `RegExp`.
+     */
+    function isRegExp(value) {
+        return toString.call(value) === '[object RegExp]';
+    }
+    Utils.isRegExp = isRegExp;
+    function isFile(obj) {
+        return toString.call(obj) === '[object File]';
+    }
+    Utils.isFile = isFile;
+    function isBlob(obj) {
+        return toString.call(obj) === '[object Blob]';
+    }
+    Utils.isBlob = isBlob;
+    function isBoolean(value) {
+        return typeof value === 'boolean';
+    }
+    Utils.isBoolean = isBoolean;
+    function isPromiseLike(obj) {
+        return obj && isFunction(obj.then);
+    }
+    Utils.isPromiseLike = isPromiseLike;
+})(Utils || (Utils = {}));
 /// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="./utils.ts"/>
+/**
+ * @author SYESILDAG
+ * https://github.com/syesildag/jreact
+ */
 var JReact;
 (function (JReact) {
     'use strict';
     JReact.DEBUG = false;
-    var STYLE = 'style';
-    var KEY = 'data-key';
     var INSTANCE = 'instance';
+    JReact.KEY = 'data-key';
+    var STYLE = 'style';
+    var CLASS = 'class';
     var ATTRIBUTE_MAP = {
-        key: KEY,
+        key: JReact.KEY,
         style: STYLE,
-        className: 'class',
-        onChange: 'change',
-        onClick: 'click',
-        onMouseUp: 'mouseup',
-        onMouseDown: 'mousedown',
-        onMouseMove: 'mousemove',
-        onTouchStart: 'touchstart',
-        onTouchEnd: 'touchend',
-        onTouchMove: 'touchmove',
-        onContextMenu: 'contextmenu'
+        className: CLASS,
+        colspan: 'colspan',
+        change: 'change',
+        click: 'click',
+        mouseup: 'mouseup',
+        mousedown: 'mousedown',
+        mousemove: 'mousemove',
+        touchstart: 'touchstart',
+        touchend: 'touchend',
+        touchmove: 'touchmove',
+        contextMenu: 'contextmenu'
     };
     /**
      * FSA-compliant action.
@@ -45,94 +312,36 @@ var JReact;
         return Action;
     }());
     JReact.Action = Action;
-    var SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
-    function camelCase(name) {
-        return name
-            .replace(SPECIAL_CHARS_REGEXP, function (_, separator, letter, offset) {
-            return offset ? letter.toUpperCase() : letter;
-        });
-    }
-    JReact.camelCase = camelCase;
-    var SNAKE_CASE_REGEXP = /[A-Z]/g;
-    function snake_case(name, separator) {
-        if (separator === void 0) { separator = '_'; }
-        return name.replace(SNAKE_CASE_REGEXP, function (letter, pos) {
-            return (pos ? separator : '') + letter.toLowerCase();
-        });
-    }
-    JReact.snake_case = snake_case;
-    /**
-     * A consistent way of creating unique IDs in angular. The ID is a sequence of alpha numeric
-     * characters such as '012ABC'. The reason why we are not using simply a number counter is that
-     * the number string gets longer over time, and it can also overflow, where as the nextId
-     * will grow much slower, it is a string, and it will never overflow.
-     *
-     * @returns {string} an unique alpha-numeric string
-     */
-    var uid = ['0', '0', '0'];
-    function nextUid() {
-        var index = uid.length, digit;
-        while (index--) {
-            digit = uid[index].charCodeAt(0);
-            if (digit == 57 /*'9'*/) {
-                uid[index] = 'A';
-                return uid.join('');
-            }
-            if (digit == 90 /*'Z'*/) {
-                uid[index] = '0';
-            }
-            else {
-                uid[index] = String.fromCharCode(digit + 1);
-                return uid.join('');
-            }
-        }
-        uid.unshift('0');
-        return uid.join('');
-    }
-    JReact.nextUid = nextUid;
     function getInstance(el) {
-        //return el.triggerHandler(SELF);
         return el.data(INSTANCE);
     }
     JReact.getInstance = getInstance;
     function setInstance(el, comp) {
         el.data(INSTANCE, comp);
-        //el.bind(SELF, function() { return comp });
     }
     function getInstanceKey(comp) {
-        var componentKey = comp.getTag(), key = comp.props.key;
-        if (testString(key))
-            componentKey += '[' + KEY + '=' + key + ']';
+        return getInstanceKeyFromTag(comp.getTag(), comp.props.key);
+    }
+    JReact.getInstanceKey = getInstanceKey;
+    function getInstanceKeyFromTag(tag, key) {
+        var componentKey = tag;
+        if (Utils.testString(key))
+            componentKey += '[' + JReact.KEY + '=' + key + ']';
         return componentKey;
     }
+    JReact.getInstanceKeyFromTag = getInstanceKeyFromTag;
     function isSame(myProps, nextProps) {
         if (myProps === nextProps)
             return true;
         if (Object.keys(myProps).length === Object.keys(nextProps).length)
             return Object.keys(myProps).every(function (prop) {
-                return myProps[prop] === nextProps[prop];
+                return Utils.isFunction(myProps[prop]) || myProps[prop] === nextProps[prop];
             });
         return false;
     }
     JReact.isSame = isSame;
-    function noop() { }
-    JReact.noop = noop;
-    function testString(value) {
-        return value != null && value !== '';
-    }
-    JReact.testString = testString;
-    function isString(value) {
-        return typeof value === "string";
-    }
-    JReact.isString = isString;
-    function isNumber(value) {
-        return typeof value === "number";
-    }
-    JReact.isNumber = isNumber;
-    function isStringOrNumber(value) {
-        return isString(value) || isNumber(value);
-    }
-    JReact.isStringOrNumber = isStringOrNumber;
+    function NOOP() { }
+    JReact.NOOP = NOOP;
     function createElement(jrc, props) {
         var args = [];
         for (var _i = 2; _i < arguments.length; _i++) {
@@ -140,13 +349,13 @@ var JReact;
         }
         var childKeys = {};
         if (args.length > 1) {
-            if (isStringOrNumber(args[0]))
+            if (Utils.isStringOrNumber(args[0]))
                 throw new Error('multiple children with string or number');
             args.forEach(function (child) {
-                if (isStringOrNumber(child))
+                if (Utils.isStringOrNumber(child))
                     return;
                 var comp = child, componentKey;
-                if (!testString(comp.props.key))
+                if (!Utils.testString(comp.props.key))
                     throw new Error('partially defined child prop keys: ' + jrc);
                 componentKey = getInstanceKey(comp);
                 if (childKeys.hasOwnProperty(componentKey))
@@ -180,19 +389,18 @@ var JReact;
                         el.css(style, remove ? '' : value[style]);
                     });
                 }
-                else {
-                    if (remove)
-                        el.removeAttr(keyMap);
-                    else
-                        el.attr(keyMap, value);
-                }
+                else if (remove)
+                    el.removeAttr(keyMap);
+                else
+                    el.attr(keyMap, value);
             }
         }, comp);
     }
     function render(comp, mount, sibling) {
-        var childSibling, nextSibling, renderResult, oldComp, el, first = false, children = [], childKeyElements = {}, instanceKey = getInstanceKey(comp), oldHTML;
+        var childSibling, nextSibling, renderResult, oldComp, el, first = false, alreadyMounted = false, children = [], childKeyElements = {}, instanceKey = getInstanceKey(comp), oldHTML;
         el = mount.children(instanceKey);
-        if (el.length) {
+        alreadyMounted = el.length > 0;
+        if (alreadyMounted && (oldComp = getInstance(el))) {
             if (JReact.DEBUG)
                 oldHTML = el.get(0).outerHTML;
             //move component
@@ -203,11 +411,8 @@ var JReact;
                     sibling.after(el);
                 }
             }
-            oldComp = getInstance(el);
             if (!oldComp.shouldComponentUpdate(comp.props, comp.state))
                 return el;
-            if (typeof comp.state !== 'undefined')
-                oldComp.state = comp.state;
             oldComp.componentWillReceiveProps(comp.props);
             updateProps(oldComp, el, true);
             oldComp.props = comp.props;
@@ -216,17 +421,22 @@ var JReact;
         }
         else {
             first = true;
-            el = jQuery('<' + comp.getTag() + '/>');
+            if (!alreadyMounted)
+                el = jQuery('<' + comp.getTag() + '/>');
             comp.setElement(el);
             setInstance(el, comp);
             comp.componentWillMount();
             updateProps(comp, el);
-            if (sibling)
-                sibling.after(el);
-            else
-                mount.prepend(el);
+            if (!alreadyMounted) {
+                if (sibling)
+                    sibling.after(el);
+                else
+                    mount.append(el);
+            }
         }
-        if (comp.props.dangerouslySetInnerHTML)
+        if (comp.props.templateID)
+            comp.renderTemplate();
+        else if (comp.props.dangerouslySetInnerHTML)
             el.html(comp.props.dangerouslySetInnerHTML.__html);
         else {
             renderResult = comp.render();
@@ -246,10 +456,11 @@ var JReact;
                     unmountElement(jc);
             });
             //render children
+            comp.refs = {};
             children.forEach(function (child) {
                 if (child instanceof Component) {
                     childSibling = render(child, el, childSibling);
-                    if (testString(child.props.ref))
+                    if (Utils.testString(child.props.ref))
                         comp.refs[child.props.ref] = childSibling;
                 }
                 else
@@ -266,12 +477,14 @@ var JReact;
         }
         return el;
     }
+    JReact.render = render;
     function renderDOM(comp, m) {
         var el = render(comp, m);
         m.children().each(function () {
             if (this !== el[0])
                 unmountElement(jQuery(this));
         });
+        return el;
     }
     JReact.renderDOM = renderDOM;
     function unmountElement(jc) {
@@ -287,6 +500,7 @@ var JReact;
         else
             jc.remove();
     }
+    JReact.unmountElement = unmountElement;
     var Component = (function () {
         function Component(props) {
             this.refs = {};
@@ -294,8 +508,6 @@ var JReact;
             if (defaultProps)
                 props = jQuery.extend(true, {}, defaultProps, props);
             this.props = props;
-            if (typeof props.state !== 'undefined')
-                this.state = props.state;
         }
         Component.prototype.getDefaultProps = function () {
             return null;
@@ -318,6 +530,7 @@ var JReact;
         Component.prototype.render = function () {
             return null;
         };
+        Component.prototype.renderTemplate = function () { };
         Component.prototype.reduce = function (state, action) {
             return state;
         };
@@ -328,7 +541,11 @@ var JReact;
             var nextState = this.reduce(this.state, action);
             if (this.shouldComponentUpdate(this.props, nextState)) {
                 this.setState(nextState);
-                JReact.renderDOM(this.render(), this.element);
+                var renderResult = this.render();
+                if (renderResult)
+                    JReact.renderDOM(renderResult, this.element);
+                else
+                    this.renderTemplate();
             }
         };
         Component.prototype.componentWillReceiveProps = function (nextProps) { };
@@ -353,16 +570,95 @@ var JReact;
                 return false;
             if (this.props.children
                 && this.props.children.length === 1
-                && isStringOrNumber(this.props.children[0])
+                && Utils.isStringOrNumber(this.props.children[0])
                 && nextProps
                 && nextProps.children.length === 1
-                && isStringOrNumber(nextProps.children[0])
+                && Utils.isStringOrNumber(nextProps.children[0])
                 && this.props.children[0] == nextProps.children[0])
                 return false;
             return _super.prototype.shouldComponentUpdate.call(this, nextProps, nextState);
         };
         return ComponentDOM;
     }(Component));
+    var AutoTemplate = (function (_super) {
+        __extends(AutoTemplate, _super);
+        function AutoTemplate(props) {
+            _super.call(this, props);
+        }
+        AutoTemplate.prototype.getTag = function () {
+            return this.props.tag;
+        };
+        AutoTemplate.prototype.getComponents = function () {
+            return this.props.components;
+        };
+        AutoTemplate.prototype.getComponentByKey = function (key) {
+            var components = this.getComponents();
+            if (components)
+                for (var _i = 0, components_1 = components; _i < components_1.length; _i++) {
+                    var component = components_1[_i];
+                    if (component.key === key)
+                        return component;
+                }
+            return null;
+        };
+        AutoTemplate.prototype.getTemplateHTML = function () {
+            return JReact.getTemplateContent(this.props.templateID);
+        };
+        AutoTemplate.prototype.renderTemplate = function () {
+            var templateHTML = this.getTemplateHTML();
+            this.preRenderTemplate();
+            if (!Utils.isUndefined(templateHTML))
+                this.getElement().html(templateHTML);
+            this.postRenderTemplate();
+        };
+        AutoTemplate.prototype.preRenderTemplate = function () {
+            var childKeyElements = {}, components = this.getComponents();
+            //create children hash
+            if (components)
+                components.forEach(function (component) {
+                    childKeyElements[JReact.getInstanceKeyFromTag(component.tag, component.key)] = true;
+                });
+            //unmount non-existant children
+            this.getElement().children('[' + JReact.KEY + ']').each(function () {
+                var jc = jQuery(this);
+                if (!childKeyElements[JReact.getInstanceKey(JReact.getInstance(jc))])
+                    JReact.unmountElement(jc);
+            });
+            this._preRenderTemplate();
+        };
+        AutoTemplate.prototype._preRenderTemplate = function () {
+        };
+        AutoTemplate.prototype.postRenderTemplate = function () {
+            var _this = this;
+            var components = this.getComponents(), sibling = null, templateHTML = this.getTemplateHTML();
+            //render children
+            this.refs = {};
+            if (components)
+                components.forEach(function (component) {
+                    sibling = JReact.render(JReact.createElement(eval(component.nameSpace + "." + component.name), component), _this.getElement(), Utils.isUndefined(templateHTML) ? sibling : undefined);
+                    _this.refs[component.key] = sibling;
+                });
+            this._postRenderTemplate();
+        };
+        AutoTemplate.prototype._postRenderTemplate = function () {
+        };
+        return AutoTemplate;
+    }(JReact.Component));
+    JReact.AutoTemplate = AutoTemplate;
+    var templateCache = {};
+    function getTemplateContent(id) {
+        return templateCache[id];
+    }
+    JReact.getTemplateContent = getTemplateContent;
+    function bootstrap(document) {
+        var script, scriptType = 'text/html';
+        for (var index = 0; index < document.scripts.length; index++) {
+            script = document.scripts[index];
+            if (script.type === scriptType && script.id)
+                templateCache[script.id] = script.text;
+        }
+    }
+    JReact.bootstrap = bootstrap;
 })(JReact || (JReact = {}));
 /// <reference path="./jreact.ts"/>
 /// <reference path="../typings/tsd.d.ts"/>
@@ -442,68 +738,8 @@ var JReactComponents;
     }(JReact.Component));
     JReactComponents.Counter = Counter;
 })(JReactComponents || (JReactComponents = {}));
-//Counter.propTypes = {
-//  initialClickCount: React.PropTypes.number.isRequired
-//};
-//Counter.defaultProps = {
-//  initialClickCount: 0
-//};
-//TodoFooter.propTypes = {
-//  count: React.PropTypes.number.isRequired,
-//  completedCount: React.PropTypes.number.isRequired
-//};
-//TodoFooter.defaultProps = {
-//  count: 0,
-//  completedCount: 0,
-//  nowShowing: Counter.Filter.ALL
-//};
-/*
-  TodoList.propTypes = {
-    count: React.PropTypes.number.isRequired,
-    completedCount: React.PropTypes.number.isRequired
-  };
-*/
-//TodoList.defaultProps = {
-//  todos: [],
-//  filter: ''
-//};
-/// <reference path="../typings/react/react.d.ts"/>
-/// <reference path="../typings/es6-promise/es6-promise.d.ts"/>
-/// <reference path="./counter.ts"/>
-/// <reference path="./state.ts"/>
-var JReactComponents;
-(function (JReactComponents) {
-    var Todo = (function (_super) {
-        __extends(Todo, _super);
-        function Todo(props) {
-            _super.call(this, props);
-        }
-        Todo.prototype.componentDidMount = function () {
-            this.refs[Todo.TODO_DIV].effect('highlight');
-        };
-        Todo.prototype.componentDidUpdate = function () {
-            this.refs[Todo.TODO_DIV].effect('highlight');
-        };
-        Todo.prototype.render = function () {
-            var _a = this.props, todo = _a.todo, todoClick = _a.todoClick;
-            return JReact.createElement('div', {
-                className: Todo.TODO_DIV + (todo.selected ? ' selected' : ''),
-                style: {
-                    backgroundColor: 'beige'
-                },
-                ref: Todo.TODO_DIV,
-                onClick: function (e) {
-                    if (todoClick)
-                        todoClick.call(this, e, todo.message);
-                }
-            }, JReact.createElement('span', { className: 'todo-span', ref: 'todo-span' }, todo.message));
-        };
-        Todo.TODO_DIV = 'todo-div';
-        return Todo;
-    }(JReact.Component));
-    JReactComponents.Todo = Todo;
-})(JReactComponents || (JReactComponents = {}));
 /// <reference path="./jreact.ts"/>
+/// <reference path="./utils.ts"/>
 /// <reference path="../typings/tsd.d.ts"/>
 var JReactComponents;
 (function (JReactComponents) {
@@ -530,7 +766,7 @@ var JReactComponents;
                     || (this.props.children != null && nextProps.children != null
                         && (this.props.children.length !== nextProps.children.length
                             || this.props.children.some(function (child, idx) {
-                                var nextChild = nextProps.children[idx], same = (JReact.isStringOrNumber(child) && JReact.isStringOrNumber(nextChild) && child == nextChild)
+                                var nextChild = nextProps.children[idx], same = (Utils.isStringOrNumber(child) && Utils.isStringOrNumber(nextChild) && child == nextChild)
                                     || ((child instanceof JReact.Component)
                                         && (nextChild instanceof JReact.Component)
                                         && child.constructor.name === nextChild.constructor.name
@@ -633,8 +869,8 @@ var JReactComponents;
             return {
                 widgetOptions: {
                     delay: 500,
-                    shortCallback: JReact.noop,
-                    longCallback: JReact.noop
+                    shortCallback: JReact.NOOP,
+                    longCallback: JReact.NOOP
                 }
             };
         };
@@ -683,58 +919,5 @@ var JReactComponents;
         return LongPress;
     }(AbstractBaseWidget));
     JReactComponents.LongPress = LongPress;
-})(JReactComponents || (JReactComponents = {}));
-/// <reference path="./jreact.ts"/>
-/// <reference path="../typings/tsd.d.ts"/>
-var JReactComponents;
-(function (JReactComponents) {
-    var Todos = (function (_super) {
-        __extends(Todos, _super);
-        function Todos(props) {
-            _super.call(this, props);
-        }
-        Todos.shortPress = function (e) {
-            alert('shortpress');
-        };
-        Todos.longPress = function (e) {
-            alert('longpress');
-        };
-        Todos.prototype.render = function () {
-            var maps = [], active = 0, idx = 0, todoClick = this.props.todoClick;
-            this.props.todos.forEach(function (todo) {
-                var jReactComponent = JReact.createElement(JReactComponents.Todo, {
-                    key: todo.key,
-                    todo: todo,
-                    todoClick: todoClick
-                });
-                if (todo.active)
-                    active = idx;
-                maps.push(JReact.createElement('span', { key: todo.key + 'header' }, todo.key + ' header'));
-                maps.push(todo.resizable
-                    ? JReact.createElement(JReactComponents.Resizable, {
-                        key: todo.key,
-                        className: 'resizable'
-                    }, jReactComponent)
-                    : JReact.createElement(JReactComponents.LongPress, {
-                        key: todo.key,
-                        className: 'longpress',
-                        widgetOptions: {
-                            longCallback: Todos.longPress,
-                            shortCallback: Todos.shortPress
-                        }
-                    }, jReactComponent));
-                idx++;
-            });
-            return JReact.createElement('div', { className: 'navbar-default', ref: 'todos-div' }, JReact.createElement.apply(JReact, [JReactComponents.Accordion, {
-                widgetOptions: {
-                    active: active,
-                    heightStyle: 'content',
-                    collapsible: true
-                }
-            }].concat(maps)));
-        };
-        return Todos;
-    }(JReact.Component));
-    JReactComponents.Todos = Todos;
 })(JReactComponents || (JReactComponents = {}));
 //# sourceMappingURL=bundle.js.map

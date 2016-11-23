@@ -1,4 +1,5 @@
 /// <reference path="./jreact.ts"/>
+/// <reference path="./utils.ts"/>
 /// <reference path="../typings/tsd.d.ts"/>
 module JReactComponents {
 
@@ -39,7 +40,7 @@ module JReactComponents {
             || this.props.children.some((child, idx) => {
               var nextChild = nextProps.children[idx],
                 same =
-                  (JReact.isStringOrNumber(child) && JReact.isStringOrNumber(nextChild) && child == nextChild)
+                  (Utils.isStringOrNumber(child) && Utils.isStringOrNumber(nextChild) && child == nextChild)
                   || ((child instanceof JReact.Component)
                     && (nextChild instanceof JReact.Component)
                     && (<any>child.constructor).name === (<any>nextChild.constructor).name
@@ -130,7 +131,7 @@ module JReactComponents {
             height: this.state.height
           }
         }
-      
+
       return super.getContainerProps();
     }
   }
@@ -175,8 +176,8 @@ module JReactComponents {
       return {
         widgetOptions: {
           delay: 500,
-          shortCallback: JReact.noop,
-          longCallback: JReact.noop
+          shortCallback: JReact.NOOP,
+          longCallback: JReact.NOOP
         }
       };
     }
