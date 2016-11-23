@@ -3,35 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-//Counter.propTypes = {
-//  initialClickCount: React.PropTypes.number.isRequired
-//};
-//Counter.defaultProps = {
-//  initialClickCount: 0
-//};
-/*
-  TodoList.propTypes = {
-    count: React.PropTypes.number.isRequired,
-    completedCount: React.PropTypes.number.isRequired
-  };
-*/
-//TodoList.defaultProps = {
-//  todos: [],
-//  filter: ''
-//};
-/// <reference path="../typings/react/react.d.ts"/>
-/// <reference path="../typings/es6-promise/es6-promise.d.ts"/>
-/// <reference path="./counter.ts"/>
-/// <reference path="./state.ts"/>
-//TodoFooter.propTypes = {
-//  count: React.PropTypes.number.isRequired,
-//  completedCount: React.PropTypes.number.isRequired
-//};
-//TodoFooter.defaultProps = {
-//  count: 0,
-//  completedCount: 0,
-//  nowShowing: Counter.Filter.ALL
-//};
+/// <reference path="../typings/tsd.d.ts"/>
 var JReact;
 (function (JReact) {
     'use strict';
@@ -396,6 +368,145 @@ var JReact;
 /// <reference path="../typings/tsd.d.ts"/>
 var JReactComponents;
 (function (JReactComponents) {
+    var CounterActionType;
+    (function (CounterActionType) {
+        CounterActionType[CounterActionType["INCREMENT"] = 0] = "INCREMENT";
+        CounterActionType[CounterActionType["DECREMENT"] = 1] = "DECREMENT";
+        CounterActionType[CounterActionType["INCREMENT_ASYNC"] = 2] = "INCREMENT_ASYNC";
+        CounterActionType[CounterActionType["DECREMENT_ASYNC"] = 3] = "DECREMENT_ASYNC";
+    })(CounterActionType || (CounterActionType = {}));
+    var Counter = (function (_super) {
+        __extends(Counter, _super);
+        function Counter(props) {
+            _super.call(this, props);
+        }
+        //public shouldComponentUpdate(nextProps: any, nextState: any) {
+        //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
+        //}
+        Counter.prototype.loading = function (loading, action) {
+            if (loading === void 0) { loading = false; }
+            switch (action.type) {
+                case CounterActionType.INCREMENT_ASYNC:
+                    return true;
+                case CounterActionType.DECREMENT_ASYNC:
+                    return true;
+                default:
+                    return false;
+            }
+        };
+        Counter.prototype.times = function (times, action) {
+            var _this = this;
+            if (times === void 0) { times = 0; }
+            switch (action.type) {
+                case CounterActionType.INCREMENT:
+                    return times >= 10 ? times : times + 1;
+                case CounterActionType.DECREMENT:
+                    return times <= 0 ? times : times - 1;
+                case CounterActionType.INCREMENT_ASYNC:
+                    setTimeout(function () {
+                        _this.dispatch(new JReact.Action(CounterActionType.INCREMENT));
+                    }, 1000);
+                    return times;
+                case CounterActionType.DECREMENT_ASYNC:
+                    setTimeout(function () {
+                        _this.dispatch(new JReact.Action(CounterActionType.DECREMENT));
+                    }, 1000);
+                default:
+                    return times;
+            }
+        };
+        Counter.prototype.reduce = function (state, action) {
+            if (state === void 0) { state = {}; }
+            return {
+                times: this.times(state.times, action),
+                loading: this.loading(state.loading, action)
+            };
+        };
+        Counter.prototype.render = function () {
+            var _this = this;
+            return JReact.createElement('div', { className: 'counter-div' }, JReact.createElement('h2', { key: 1, className: 'counter-span' }, this.state.times + (this.state.loading ? '...' : '')), JReact.createElement('button', {
+                key: 2,
+                className: 'btn btn-primary',
+                onClick: function () {
+                    _this.dispatch(new JReact.Action(CounterActionType.DECREMENT_ASYNC));
+                }
+            }, 'DEC'), JReact.createElement('button', {
+                key: 3,
+                className: 'btn btn-primary',
+                onClick: function () {
+                    _this.dispatch(new JReact.Action(CounterActionType.INCREMENT_ASYNC));
+                }
+            }, 'INC'));
+        };
+        return Counter;
+    }(JReact.Component));
+    JReactComponents.Counter = Counter;
+})(JReactComponents || (JReactComponents = {}));
+//Counter.propTypes = {
+//  initialClickCount: React.PropTypes.number.isRequired
+//};
+//Counter.defaultProps = {
+//  initialClickCount: 0
+//};
+//TodoFooter.propTypes = {
+//  count: React.PropTypes.number.isRequired,
+//  completedCount: React.PropTypes.number.isRequired
+//};
+//TodoFooter.defaultProps = {
+//  count: 0,
+//  completedCount: 0,
+//  nowShowing: Counter.Filter.ALL
+//};
+/*
+  TodoList.propTypes = {
+    count: React.PropTypes.number.isRequired,
+    completedCount: React.PropTypes.number.isRequired
+  };
+*/
+//TodoList.defaultProps = {
+//  todos: [],
+//  filter: ''
+//};
+/// <reference path="../typings/react/react.d.ts"/>
+/// <reference path="../typings/es6-promise/es6-promise.d.ts"/>
+/// <reference path="./counter.ts"/>
+/// <reference path="./state.ts"/>
+var JReactComponents;
+(function (JReactComponents) {
+    var Todo = (function (_super) {
+        __extends(Todo, _super);
+        function Todo(props) {
+            _super.call(this, props);
+        }
+        Todo.prototype.componentDidMount = function () {
+            this.refs[Todo.TODO_DIV].effect('highlight');
+        };
+        Todo.prototype.componentDidUpdate = function () {
+            this.refs[Todo.TODO_DIV].effect('highlight');
+        };
+        Todo.prototype.render = function () {
+            var _a = this.props, todo = _a.todo, todoClick = _a.todoClick;
+            return JReact.createElement('div', {
+                className: Todo.TODO_DIV + (todo.selected ? ' selected' : ''),
+                style: {
+                    backgroundColor: 'beige'
+                },
+                ref: Todo.TODO_DIV,
+                onClick: function (e) {
+                    if (todoClick)
+                        todoClick.call(this, e, todo.message);
+                }
+            }, JReact.createElement('span', { className: 'todo-span', ref: 'todo-span' }, todo.message));
+        };
+        Todo.TODO_DIV = 'todo-div';
+        return Todo;
+    }(JReact.Component));
+    JReactComponents.Todo = Todo;
+})(JReactComponents || (JReactComponents = {}));
+/// <reference path="./jreact.ts"/>
+/// <reference path="../typings/tsd.d.ts"/>
+var JReactComponents;
+(function (JReactComponents) {
     var AbstractBaseWidget = (function (_super) {
         __extends(AbstractBaseWidget, _super);
         function AbstractBaseWidget(props) {
@@ -626,214 +737,4 @@ var JReactComponents;
     }(JReact.Component));
     JReactComponents.Todos = Todos;
 })(JReactComponents || (JReactComponents = {}));
-/// <reference path="./jreact.ts"/>
-/// <reference path="../typings/tsd.d.ts"/>
-var JReactComponents;
-(function (JReactComponents) {
-    var CounterActionType;
-    (function (CounterActionType) {
-        CounterActionType[CounterActionType["INCREMENT"] = 0] = "INCREMENT";
-        CounterActionType[CounterActionType["DECREMENT"] = 1] = "DECREMENT";
-        CounterActionType[CounterActionType["INCREMENT_ASYNC"] = 2] = "INCREMENT_ASYNC";
-        CounterActionType[CounterActionType["DECREMENT_ASYNC"] = 3] = "DECREMENT_ASYNC";
-    })(CounterActionType || (CounterActionType = {}));
-    var Counter = (function (_super) {
-        __extends(Counter, _super);
-        function Counter(props) {
-            _super.call(this, props);
-        }
-        //public shouldComponentUpdate(nextProps: any, nextState: any) {
-        //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
-        //}
-        Counter.prototype.loading = function (loading, action) {
-            if (loading === void 0) { loading = false; }
-            switch (action.type) {
-                case CounterActionType.INCREMENT_ASYNC:
-                    return true;
-                case CounterActionType.DECREMENT_ASYNC:
-                    return true;
-                default:
-                    return false;
-            }
-        };
-        Counter.prototype.times = function (times, action) {
-            var _this = this;
-            if (times === void 0) { times = 0; }
-            switch (action.type) {
-                case CounterActionType.INCREMENT:
-                    return times >= 10 ? times : times + 1;
-                case CounterActionType.DECREMENT:
-                    return times <= 0 ? times : times - 1;
-                case CounterActionType.INCREMENT_ASYNC:
-                    setTimeout(function () {
-                        _this.dispatch(new JReact.Action(CounterActionType.INCREMENT));
-                    }, 1000);
-                    return times;
-                case CounterActionType.DECREMENT_ASYNC:
-                    setTimeout(function () {
-                        _this.dispatch(new JReact.Action(CounterActionType.DECREMENT));
-                    }, 1000);
-                default:
-                    return times;
-            }
-        };
-        Counter.prototype.reduce = function (state, action) {
-            if (state === void 0) { state = {}; }
-            return {
-                times: this.times(state.times, action),
-                loading: this.loading(state.loading, action)
-            };
-        };
-        Counter.prototype.render = function () {
-            var _this = this;
-            return JReact.createElement('div', { className: 'counter-div' }, JReact.createElement('h2', { key: 1, className: 'counter-span' }, this.state.times + (this.state.loading ? '...' : '')), JReact.createElement('button', {
-                key: 2,
-                className: 'btn btn-primary',
-                onClick: function () {
-                    _this.dispatch(new JReact.Action(CounterActionType.DECREMENT_ASYNC));
-                }
-            }, 'DEC'), JReact.createElement('button', {
-                key: 3,
-                className: 'btn btn-primary',
-                onClick: function () {
-                    _this.dispatch(new JReact.Action(CounterActionType.INCREMENT_ASYNC));
-                }
-            }, 'INC'));
-        };
-        return Counter;
-    }(JReact.Component));
-    JReactComponents.Counter = Counter;
-})(JReactComponents || (JReactComponents = {}));
-/// <reference path="./jreact.ts"/>
-/// <reference path="../typings/tsd.d.ts"/>
-var JReactComponents;
-(function (JReactComponents) {
-    var Todo = (function (_super) {
-        __extends(Todo, _super);
-        function Todo(props) {
-            _super.call(this, props);
-        }
-        Todo.prototype.componentDidMount = function () {
-            this.refs[Todo.TODO_DIV].effect('highlight');
-        };
-        Todo.prototype.componentDidUpdate = function () {
-            this.refs[Todo.TODO_DIV].effect('highlight');
-        };
-        Todo.prototype.render = function () {
-            var _a = this.props, todo = _a.todo, todoClick = _a.todoClick;
-            return JReact.createElement('div', {
-                className: Todo.TODO_DIV + (todo.selected ? ' selected' : ''),
-                style: {
-                    backgroundColor: 'beige'
-                },
-                ref: Todo.TODO_DIV,
-                onClick: function (e) {
-                    if (todoClick)
-                        todoClick.call(this, e, todo.message);
-                }
-            }, JReact.createElement('span', { className: 'todo-span', ref: 'todo-span' }, todo.message));
-        };
-        Todo.TODO_DIV = 'todo-div';
-        return Todo;
-    }(JReact.Component));
-    JReactComponents.Todo = Todo;
-})(JReactComponents || (JReactComponents = {}));
-/// <reference path="../typings/jquery/jquery.d.ts"/>
-/// <reference path="../typings/jqueryui/jqueryui.d.ts"/>
-/// <reference path="../typings/es6-promise/es6-promise.d.ts"/>
-/// <reference path="./counter.ts"/>
-/// <reference path="./state.ts"/>
-(function ($) {
-    'use strict';
-    $.widget("custom.combobox", {
-        _create: function () {
-            this.wrapper = $("<span>")
-                .addClass("custom-combobox")
-                .insertAfter(this.element);
-            this.element.hide();
-            this._createAutocomplete();
-            this._createShowAllButton();
-            this._setOption("disabled", this.element.prop("disabled"));
-            //update input size.
-            var txt = this.element.find(':selected').text();
-            var wrappedTxt = $("<span style='display:none'>" + txt + "</span>").insertAfter(this.element);
-            //$(this)[0].input.width($(wrappedTxt).width() < 135 ? 155 : $(wrappedTxt).width() + 20);
-            $(wrappedTxt).remove();
-        },
-        _createAutocomplete: function () {
-            var selected = this.element.children(":selected");
-            var value = selected ? selected.text() : "";
-            this.input = $("<input>")
-                .data("originalselect", this.element)
-                .appendTo(this.wrapper)
-                .val(value)
-                .attr("title", "")
-                .focus(function () { $(this).select(); })
-                .mouseup(function (e) { e.preventDefault(); }) // dans certains navigateur, la s�lection sur le focus disparait au mouse up
-                .addClass("custom-combobox-input")
-                .autocomplete({
-                delay: 0,
-                minLength: 0,
-                source: $.proxy(this, "_source")
-            });
-            $(this.element).data("filtered_input", this.input);
-        },
-        _createShowAllButton: function () {
-            var input = this.input;
-            var pShowAllButton = $("<a>");
-            this.button = $("<a>")
-                .attr("tabIndex", -1)
-                .appendTo(this.wrapper)
-                .button({
-                icons: {
-                    primary: "ui-icon-triangle-1-s"
-                },
-                text: false
-            })
-                .removeClass("ui-corner-all")
-                .addClass("custom-combobox-toggle")
-                .click(function () {
-                input.focus();
-                // Pass empty string as value to search for, displaying all results
-                input.autocomplete("search", "");
-            });
-            //try to fullfill synchronous rendering expectations of the javascript runtime
-            setTimeout(function () {
-                pShowAllButton.css({ height: input.outerHeight() - 2 });
-            }, 0);
-        },
-        _setOption: function (key, value) {
-            this._super(key, value);
-            if (key === "disabled") {
-                if (value) {
-                    this.element.prop("disabled", true);
-                    this.input.prop("disabled", true);
-                    this.button.button("disable");
-                }
-                else {
-                    this.element.prop("disabled", false);
-                    this.input.prop("disabled", false);
-                    this.button.button("enable");
-                }
-                return;
-            }
-        },
-        _source: function (request, response) {
-            var matcher = new RegExp($.ui.autocomplete.escapeRegex(request.term), "i");
-            response(this.element.children("option").map(function () {
-                var text = $(this).text();
-                if (this.value != null && (!request.term || matcher.test(text)))
-                    return {
-                        label: text,
-                        value: text,
-                        option: this
-                    };
-            }));
-        },
-        _destroy: function () {
-            this.wrapper.remove();
-            this.element.show();
-        }
-    });
-})(jQuery);
 //# sourceMappingURL=bundle.js.map
