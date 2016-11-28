@@ -1,6 +1,6 @@
-/// <reference path="./jreact.ts"/>
-/// <reference path="./utils.ts"/>
-/// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="../jreact.ts"/>
+/// <reference path="../utils.ts"/>
+/// <reference path="../../typings/tsd.d.ts"/>
 module JReactComponents {
 
   export interface WidgetProps<O> extends JReact.Props {

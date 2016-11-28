@@ -423,11 +423,11 @@ module JReact {
       return this.props.tag;
     }
 
-    protected getComponents(): Array<P> {
+    protected getComponents(): Array<AutoTemplateProps<T, any, any>> {
       return this.props.components;
     }
 
-    protected getComponentByKey(key: Key): P {
+    protected getComponentByKey(key: Key): AutoTemplateProps<T, any, any> {
       let components = this.getComponents();
 
       if (components)
@@ -455,7 +455,7 @@ module JReact {
       
       //create children hash
       if (components)
-        components.forEach((component: P) => {
+        components.forEach(component => {
           childKeyElements[JReact.getInstanceKeyFromTag(component.tag, component.key)] = true;
         });
         
@@ -479,7 +479,7 @@ module JReact {
       //render children
       this.refs = {};
       if (components)
-        components.forEach((component: P) => {
+        components.forEach(component => {
           sibling = JReact.render(JReact.createElement(eval(component.nameSpace + "." + component.name), component), this.getElement(), Utils.isUndefined(templateHTML) ? sibling : undefined);
           this.refs[component.key] = sibling;
         });

@@ -1,5 +1,5 @@
-/// <reference path="./jreact.ts"/>
-/// <reference path="../typings/tsd.d.ts"/>
+/// <reference path="../jreact.ts"/>
+/// <reference path="../../typings/tsd.d.ts"/>
 module JReactComponents {
 
   interface CounterProps extends JReact.Props {
@@ -19,7 +19,7 @@ module JReactComponents {
   }
 
   export class Counter extends JReact.Component<CounterProps, CounterState, CounterActionType, any> {
-    
+
     constructor(props: CounterProps) {
       super(props);
     }
@@ -28,7 +28,7 @@ module JReactComponents {
     //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
     //}
     
-    private loading(loading: boolean = false, action: JReact.Action<CounterActionType, any>) : boolean {
+    private loading(loading: boolean = false, action: JReact.Action<CounterActionType, any>): boolean {
       switch (action.type) {
         case CounterActionType.INCREMENT_ASYNC:
           return true;
@@ -38,8 +38,8 @@ module JReactComponents {
           return false;
       }
     }
-    
-    private times(times: number = 0, action: JReact.Action<CounterActionType, any>) : number {
+
+    private times(times: number = 0, action: JReact.Action<CounterActionType, any>): number {
       switch (action.type) {
         case CounterActionType.INCREMENT:
           return times >= 10 ? times : times + 1;
@@ -58,18 +58,18 @@ module JReactComponents {
           return times;
       }
     }
-    
+
     public reduce(state: CounterState = {}, action: JReact.Action<CounterActionType, any>): CounterState {
       return {
         times: this.times(state.times, action),
         loading: this.loading(state.loading, action)
       };
     }
-    
+
     public render() {
       return JReact.createElement('div', { className: 'counter-div' },
         JReact.createElement('h2', { key: 1, className: 'counter-span' }, this.state.times + (this.state.loading ? '...' : '')),
-        
+
         JReact.createElement('button', {
           key: 2,
           className: 'btn btn-primary',
@@ -77,7 +77,7 @@ module JReactComponents {
             this.dispatch(new JReact.Action(CounterActionType.DECREMENT_ASYNC));
           }
         }, 'DEC'),
-        
+
         JReact.createElement('button', {
           key: 3,
           className: 'btn btn-primary',
