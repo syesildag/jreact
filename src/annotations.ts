@@ -7,13 +7,13 @@ namespace Annotations {
   'use strict';
 
   export class InvocationContext {
-    constructor( private index: number,
+    constructor(private index: number,
       private target: any,
       private propertyKey: string,
       private descriptor: TypedPropertyDescriptor<Function>,
       private method: Function,
       private args: Array<any>,
-      private result: any ) {
+      private result: any) {
     }
 
     public getIndex() {
@@ -45,7 +45,7 @@ namespace Annotations {
     }
 
     public proceed() {
-      return this.method.apply( this.target, this.args );
+      return this.method.apply(this.target, this.args);
     }
 
     public proceedWithCaution() {
@@ -56,15 +56,15 @@ namespace Annotations {
   export function interceptors<I extends Interceptor>(...interceptors: Array<I>) {
     let interceptor: I;
     //INIT
-    for ( interceptor of interceptors )
+    for (interceptor of interceptors)
       interceptor.init();
-    return function( target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<Function> ) {
+    return function (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<Function>) {
       let method = descriptor.value;
-      descriptor.value = ( ...args: Array<any> ) => {
+      descriptor.value = (...args: Array<any>) => {
         let result: any, index = 0;
         //INTERCEPT
-        for ( interceptor of interceptors )
-          result = interceptor.intercept( new InvocationContext( index++, target, propertyKey, descriptor, method, args, result ) );
+        for (interceptor of interceptors)
+          result = interceptor.intercept(new InvocationContext(index++, target, propertyKey, descriptor, method, args, result));
         return result;
       }
     }
@@ -88,8 +88,8 @@ namespace Annotations {
       this.enabled = enabled;
     }
 
-    public intercept( ctx: InvocationContext ) {
-      throw new Error( 'must be overridden' );
+    public intercept(ctx: InvocationContext) {
+      throw new Error('must be overridden');
     }
   }
 
@@ -98,39 +98,39 @@ namespace Annotations {
     private readonly start: string;
     private readonly end: string;
 
-    constructor( { start = '', end = '' } = {} ) {
+    constructor({ start = '', end = '' } = {}) {
       super();
       this.start = start;
       this.end = end;
     }
 
-    public intercept( ctx: InvocationContext ) {
+    public intercept(ctx: InvocationContext) {
       let result: any,
         { start, end } = this,
         target = ctx.getTarget(),
         propertyKey = ctx.getPropertyKey(),
         args = ctx.getArgs();
 
-      if ( this.start && this.isEnabled() )
-        console.log( { start, target, propertyKey, args } );
+      if (this.start && this.isEnabled())
+        console.log({ start, target, propertyKey, args });
       result = ctx.proceedWithCaution();
-      if ( this.end && this.isEnabled() )
-        console.log( { end, target, propertyKey, args, result } );
+      if (this.end && this.isEnabled())
+        console.log({ end, target, propertyKey, args, result });
       return result;
     }
   }
 
   export class Profiler extends Interceptor {
 
-    constructor( private name: string ) {
+    constructor(private name: string) {
       super();
     }
 
-    public intercept( ctx: InvocationContext ) {
+    public intercept(ctx: InvocationContext) {
       let result: any, { name } = this;
-      if ( this.isEnabled() ) console.time( name );
+      if (this.isEnabled()) console.time(name);
       result = ctx.proceedWithCaution();
-      if ( this.isEnabled() ) console.timeEnd( name );
+      if (this.isEnabled()) console.timeEnd(name);
       return result;
     }
   }

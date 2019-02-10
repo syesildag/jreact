@@ -5,7 +5,7 @@ namespace Functions {
   'use strict';
 
   export interface Constructor<T> {
-    new (...args: Array<any>): T;
+    new(...args: Array<any>): T;
   }
 
   export interface Supplier<T> {
@@ -13,11 +13,11 @@ namespace Functions {
   }
 
   export interface ToString<T> {
-    ( item: T ): string;
+    (item: T): string;
   }
 
   export interface Interceptor<T> {
-    intercept( ctx: T ): any;
+    intercept(ctx: T): any;
   }
 
   export interface Init {

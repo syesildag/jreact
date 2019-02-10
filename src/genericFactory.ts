@@ -11,7 +11,7 @@ namespace GenericFactory {
   }
 
   export interface Constructor<K, T extends Functions.Supplier<K>> {
-    new (...args: Array<any>): T;
+    new(...args: Array<any>): T;
   }
 
   export class Base<K extends ToString, T extends Functions.Supplier<K>> {

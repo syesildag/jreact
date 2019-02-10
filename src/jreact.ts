@@ -79,15 +79,15 @@ namespace JReact {
     }
   }
 
-  export function getInstance<P extends Props, S, C extends Component<P, S, any, any>>(el: JQuery): C {
+  export function getInstance<P extends Props, S, C extends Component<P, S>>(el: JQuery): C {
     return el.data(INSTANCE);
   }
 
-  function setInstance<P extends Props>(el: JQuery, comp: Component<P, any, any, any>) {
+  function setInstance<P extends Props>(el: JQuery, comp: Component<P>) {
     el.data(INSTANCE, comp);
   }
 
-  export function getInstanceKey<P extends Props>(comp: Component<P, any, any, any>): string {
+  export function getInstanceKey<P extends Props>(comp: Component<P>): string {
     return getInstanceKeyFromTag(comp.getTag(), comp.props.key);
   }
 
@@ -320,7 +320,7 @@ namespace JReact {
       comp.componentDidUpdate(prevProps, prevState);
 
     if (DEBUG && !first && oldHTML === el.get(0).outerHTML) {
-      console.log(`rendered but same:\n${(<any>comp.constructor).name}\n${getInstanceKey(comp) }\n${oldHTML}`);
+      console.log(`rendered but same:\n${(<any>comp.constructor).name}\n${getInstanceKey(comp)}\n${oldHTML}`);
       console.dir(el.get(0));
     }
 

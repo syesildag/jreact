@@ -3,7 +3,7 @@
 namespace Utils {
   'use strict';
 
-  export type BooleanPropertyNames<T> = {[K in keyof T]: T[K] extends Boolean ? K : never}[keyof T];
+  export type BooleanPropertyNames<T> = { [K in keyof T]: T[K] extends Boolean ? K : never }[keyof T];
 
   export type BooleanProperties<T> = Pick<T, BooleanPropertyNames<T>>;
 
@@ -244,7 +244,7 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is defined.
    */
-  export function isDefined(value: any) {
+  export function isDefined(value: any): value is any {
     return typeof value !== 'undefined';
   }
 
@@ -261,7 +261,7 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is an `Object` but not `null`.
    */
-  export function isObject(value: any) {
+  export function isObject(value: any): value is any {
     return value != null && typeof value === 'object';
   }
 
@@ -297,7 +297,7 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is a `Number`.
    */
-  export function isNumber(value: any) {
+  export function isNumber(value: any): value is number {
     return typeof value === 'number';
   }
 
@@ -317,7 +317,7 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is a `Date`.
    */
-  export function isDate(value: any) {
+  export function isDate(value: any): value is Date {
     return toString.call(value) === '[object Date]';
   }
 
@@ -333,7 +333,7 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is a `Function`.
    */
-  export function isFunction(value: any) {
+  export function isFunction(value: any): value is Function {
     return typeof value === 'function';
   }
 
@@ -344,28 +344,28 @@ namespace Utils {
    * @param {*} value Reference to check.
    * @returns {boolean} True if `value` is a `RegExp`.
    */
-  export function isRegExp(value: any) {
+  export function isRegExp(value: any): value is RegExp {
     return toString.call(value) === '[object RegExp]';
   }
 
-  export function isFile(obj: any) {
+  export function isFile(obj: any): obj is File {
     return toString.call(obj) === '[object File]';
   }
 
-  export function isBlob(obj: any) {
+  export function isBlob(obj: any): obj is Blob {
     return toString.call(obj) === '[object Blob]';
   }
 
-  export function isBoolean(value: any) {
+  export function isBoolean(value: any): value is boolean {
     return typeof value === 'boolean';
   }
 
-  export function isArray(value: any) {
+  export function isArray(value: any): value is Array<any> {
     return Array.isArray(value);
   }
 
-  export function isPromiseLike(obj: any) {
-    return obj && isFunction(obj.then);
+  export function isPromiseLike(obj: any): obj is { then(): void } {
+    return obj && isDefined(obj) && isFunction(obj.then);
   }
 
   export function curry(fn: Function): Function {
