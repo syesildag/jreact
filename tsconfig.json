@@ -1,14 +1,18 @@
 {
-  "version": "1.7.6",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
+    "module": "es6",
+    "target": "es6",
     "jsx": "react",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true  },
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true
+  },
+  "include": [
+    "src"
+  ],
   "exclude": [
-    "src",
     "node_modules"
   ]
 }

@@ -1,17 +1,14 @@
 /* global describe, it, beforeEach */
-/// <reference path="../typings/node/node.d.ts" />
-/// <reference path="../typings/mocha/mocha.d.ts" />
+/// <reference path="../src/utils.ts"/>
 
 'use strict';
 
 //SERKAN
 
-var assert = require('assert');
-
-import Utils = require('../src/utils');
+let assert = require('assert');
 
 describe('addition', function() {
-  var self = this;
+  let self: any = {};
 
   beforeEach(() => {
     self.onePlusOne = 1 + 1;

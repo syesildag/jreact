@@ -1,5 +1,4 @@
 /// <reference path="../jreact.ts"/>
-/// <reference path="../../typings/tsd.d.ts"/>
 module JReactComponents {
 
   interface CounterProps extends JReact.Props {
@@ -18,16 +17,15 @@ module JReactComponents {
     DECREMENT_ASYNC
   }
 
-  export class Counter extends JReact.Component<CounterProps, CounterState, CounterActionType, any> {
+  export class Counter extends JReact.Component<CounterProps, CounterState, CounterActionType> {
 
     constructor(props: CounterProps) {
       super(props);
     }
-    
+
     //public shouldComponentUpdate(nextProps: any, nextState: any) {
     //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
     //}
-    
     private loading(loading: boolean = false, action: JReact.Action<CounterActionType, any>): boolean {
       switch (action.type) {
         case CounterActionType.INCREMENT_ASYNC:
@@ -85,7 +83,7 @@ module JReactComponents {
             this.dispatch(new JReact.Action(CounterActionType.INCREMENT_ASYNC));
           }
         }, 'INC')
-        );
+      );
     }
   }
 }
