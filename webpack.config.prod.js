@@ -2,10 +2,10 @@ const path = require('path');
 module.exports = {
     mode: 'production',
     entry: {
-        jreact: path.join(__dirname, 'src', 'jreact.ts')
+        index: path.join(__dirname, 'src', 'index.tsx')
     },
     output: {
-        filename: '[name]_bundle_prod.js',
+        filename: '[name]_prod.js',
         path: path.resolve(__dirname, 'dist')
     },
     module: {

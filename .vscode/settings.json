@@ -1,5 +1,12 @@
 {
     "svn.ignoreMissingSvnWarning": true,
     "editor.detectIndentation": false,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "editor.formatOnPaste": true,
+    "files.exclude": {
+      "**/.gitignore": true,
+      "**/.vscode": true,
+      "**/LICENSE": true,
+      "**/node_modules": true
+    }
 }

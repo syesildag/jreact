@@ -1,53 +1,51 @@
-/// <reference path="../jreact.ts"/>
-/// <reference path="../utils.ts"/>
+import * as JReact from '../jreact';
+import * as Utils from '../utils';
+import * as jQuery from 'jquery';
 
-namespace RslComponents {
+export default class ValidForm<P extends JReact.Props, S, A, L> extends JReact.Component<P, S, A, L> {
 
-  export class ValidForm<P extends JReact.Props, S, A, L> extends JReact.Component<P, S, A, L> {
+  constructor(props: P) {
+    super(props);
+  }
 
-    constructor(props: P) {
-      super(props);
-    }
+  public componentDidMount() {
+    this.validate();
+  }
 
-    public componentDidMount() {
-      this.validate();
-    }
+  public componentDidUpdate(prevProps: P, prevState: S) {
+    this.validate(prevProps, prevState);
+  }
 
-    public componentDidUpdate(prevProps: P, prevState: S) {
-      this.validate(prevProps, prevState);
-    }
+  protected validate(prevProps?: P, prevState?: S) {
+    let el = this.getElement();
 
-    protected validate(prevProps?: P, prevState?: S) {
-      let el = this.getElement();
+    el.children('[' + JReact.DATA_PATTERN + ']').each((index: number, elem: Element) => {
+      let
+        regexp: RegExp,
+        name: string,
+        inputValue: any,
+        $elem = jQuery(elem),
+        pattern = $elem.attr(JReact.DATA_PATTERN);
 
-      el.children('[' + JReact.DATA_PATTERN + ']').each((index: number, elem: Element) => {
-        let
-          regexp: RegExp,
-          name: string,
-          inputValue: any,
-          $elem = $(elem),
-          pattern = $elem.attr(JReact.DATA_PATTERN);
+      if (!pattern)
+        throw new Error(`missing pattern ${elem}`);
 
-        if (!pattern)
-          throw new Error(`missing pattern ${elem}`);
+      regexp = (Utils.FORMAT_VALUES as any)[pattern];
+      if (!regexp)
+        throw new Error(`invalid pattern ${pattern}`);
 
-        regexp = (Utils.FORMAT_VALUES as any)[pattern];
-        if (!regexp)
-          throw new Error(`invalid pattern ${pattern}`);
+      inputValue = $elem.val();
 
-        inputValue = $elem.val();
-
-        if (!inputValue || inputValue.match(regexp)) {
-          //VALID
-          $elem.addClass(JReact.RSL_VALID_PATTERN);
-          $elem.removeClass(JReact.RSL_INVALID_PATTERN);
-        }
-        else {
-          //INVALID
-          $elem.addClass(JReact.RSL_INVALID_PATTERN);
-          $elem.removeClass(JReact.RSL_VALID_PATTERN);
-        }
-      });
-    }
+      if (!inputValue || inputValue.match(regexp)) {
+        //VALID
+        $elem.addClass(JReact.RSL_VALID_PATTERN);
+        $elem.removeClass(JReact.RSL_INVALID_PATTERN);
+      }
+      else {
+        //INVALID
+        $elem.addClass(JReact.RSL_INVALID_PATTERN);
+        $elem.removeClass(JReact.RSL_VALID_PATTERN);
+      }
+    });
   }
 }
