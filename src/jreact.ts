@@ -9,6 +9,7 @@ import * as jQuery from 'jquery';
 export let DEBUG: boolean = false;
 export let TEST: boolean = false;
 
+export type ComponentProps<C extends Component<any>> = C extends Component<infer X> ? X : never;
 export type Key = string | number;
 export type ComponentArray = Array<string | number | Component<any>>;
 
@@ -120,9 +121,9 @@ export function isSame(myProps: any, nextProps: any): boolean {
 export function NOOP() {
 }
 
-export function createElement<P extends Props, C extends Component<P>>(
-  jrc: { new(props: P): C },
-  props: P, ...args: ComponentArray): C;
+export function createElement<C extends Component<any>>(
+  jrc: { new(props: ComponentProps<C>): C },
+  props: ComponentProps<C>, ...args: ComponentArray): C;
 
 export function createElement<P extends DOMAttributes>(
   jrc: string, props: P, ...args: ComponentArray): ComponentDOM<P>;
