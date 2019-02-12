@@ -34605,6 +34605,92 @@ module.exports = g;
 
 /***/ }),
 
+/***/ "./src/components/jreactCounter.ts":
+/*!*****************************************!*\
+  !*** ./src/components/jreactCounter.ts ***!
+  \*****************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Counter; });
+/* harmony import */ var _jreact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../jreact */ "./src/jreact.ts");
+/// <reference path="../jreact.ts"/>
+
+var CounterActionType;
+(function (CounterActionType) {
+    CounterActionType[CounterActionType["INCREMENT"] = 0] = "INCREMENT";
+    CounterActionType[CounterActionType["DECREMENT"] = 1] = "DECREMENT";
+    CounterActionType[CounterActionType["INCREMENT_ASYNC"] = 2] = "INCREMENT_ASYNC";
+    CounterActionType[CounterActionType["DECREMENT_ASYNC"] = 3] = "DECREMENT_ASYNC";
+})(CounterActionType || (CounterActionType = {}));
+class Counter extends _jreact__WEBPACK_IMPORTED_MODULE_0__["Component"] {
+    constructor(props) {
+        super(props);
+        this.state = {
+            times: this.props.times,
+            loading: false,
+        };
+    }
+    //public shouldComponentUpdate(nextProps: any, nextState: any) {
+    //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
+    //}
+    loading(loading = false, action) {
+        switch (action.type) {
+            case CounterActionType.INCREMENT_ASYNC:
+                return true;
+            case CounterActionType.DECREMENT_ASYNC:
+                return true;
+            default:
+                return false;
+        }
+    }
+    times(times = 0, action) {
+        switch (action.type) {
+            case CounterActionType.INCREMENT:
+                return times + 1;
+            case CounterActionType.DECREMENT:
+                return times - 1;
+            case CounterActionType.INCREMENT_ASYNC:
+                setTimeout(() => {
+                    this.dispatch(new _jreact__WEBPACK_IMPORTED_MODULE_0__["Action"](CounterActionType.INCREMENT));
+                }, 1000);
+                return times;
+            case CounterActionType.DECREMENT_ASYNC:
+                setTimeout(() => {
+                    this.dispatch(new _jreact__WEBPACK_IMPORTED_MODULE_0__["Action"](CounterActionType.DECREMENT));
+                }, 1000);
+            default:
+                return times;
+        }
+    }
+    reduce(state = {}, action) {
+        return {
+            times: this.times(state.times, action),
+            loading: this.loading(state.loading, action)
+        };
+    }
+    render() {
+        return _jreact__WEBPACK_IMPORTED_MODULE_0__["createElement"]('div', { className: 'counter-div' }, _jreact__WEBPACK_IMPORTED_MODULE_0__["createElement"]('h2', { key: 1, className: 'counter-span' }, this.state.times + (this.state.loading ? '...' : '')), _jreact__WEBPACK_IMPORTED_MODULE_0__["createElement"]('button', {
+            key: 2,
+            className: 'btn btn-primary',
+            click: () => {
+                this.dispatch(new _jreact__WEBPACK_IMPORTED_MODULE_0__["Action"](CounterActionType.DECREMENT_ASYNC));
+            }
+        }, 'DEC'), _jreact__WEBPACK_IMPORTED_MODULE_0__["createElement"]('button', {
+            key: 3,
+            className: 'btn btn-primary',
+            click: () => {
+                this.dispatch(new _jreact__WEBPACK_IMPORTED_MODULE_0__["Action"](CounterActionType.INCREMENT_ASYNC));
+            }
+        }, 'INC'));
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/components/jreactWrapper.ts":
 /*!*****************************************!*\
   !*** ./src/components/jreactWrapper.ts ***!
@@ -34615,14 +34701,20 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return Wrapper; });
-/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
-/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _jreact__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../jreact */ "./src/jreact.ts");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+/* harmony import */ var react_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(react_dom__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _jreact__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../jreact */ "./src/jreact.ts");
+/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ "./src/utils.ts");
 
 
-class Wrapper extends _jreact__WEBPACK_IMPORTED_MODULE_1__["Component"] {
+
+
+class Wrapper extends _jreact__WEBPACK_IMPORTED_MODULE_2__["Component"] {
     constructor(props) {
         super(props);
+        this.reactInstance = react__WEBPACK_IMPORTED_MODULE_0__["createRef"]();
     }
     shouldComponentUpdate(nextProps) {
         return true;
@@ -34630,11 +34722,15 @@ class Wrapper extends _jreact__WEBPACK_IMPORTED_MODULE_1__["Component"] {
     componentDidUpdate() {
         this.renderReactElement();
     }
+    componentWillUnmount() {
+        this.reactInstance.current.componentWillUnmount();
+    }
     componentDidMount() {
         this.renderReactElement();
     }
     renderReactElement() {
-        react_dom__WEBPACK_IMPORTED_MODULE_0__["render"](this.props.reactElement, this.getElement()[0]);
+        let clone = react__WEBPACK_IMPORTED_MODULE_0__["createElement"](this.props.reactElement.type, _utils__WEBPACK_IMPORTED_MODULE_3__["extend"](this.props.reactElement.props, { ref: this.reactInstance }), this.props.reactElement.props.children);
+        react_dom__WEBPACK_IMPORTED_MODULE_1__["render"](clone, this.getElement()[0]);
     }
     render() {
         return [];
@@ -34659,6 +34755,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _jreact__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./jreact */ "./src/jreact.ts");
 /* harmony import */ var _components_jreactWrapper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/jreactWrapper */ "./src/components/jreactWrapper.ts");
+/* harmony import */ var _components_jreactCounter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/jreactCounter */ "./src/components/jreactCounter.ts");
+
 
 
 
@@ -34674,14 +34772,18 @@ jquery__WEBPACK_IMPORTED_MODULE_1__(($) => {
     }, 'JReact Span'), $('#container'));
     _jreact__WEBPACK_IMPORTED_MODULE_2__["render"](_jreact__WEBPACK_IMPORTED_MODULE_2__["createElement"](_components_jreactWrapper__WEBPACK_IMPORTED_MODULE_3__["default"], {
         key: "test",
-        reactElement: react__WEBPACK_IMPORTED_MODULE_0__["createElement"]('input', {
+        reactElement: react__WEBPACK_IMPORTED_MODULE_0__["createElement"]('div', {
             onClick: onClick,
-            type: "button",
             key: "bk",
             className: "button_class",
             value: "Click me"
-        })
+        }, react__WEBPACK_IMPORTED_MODULE_0__["createElement"]("button", null, "ClickMe"))
     }), $('#react-wrapper'));
+    _jreact__WEBPACK_IMPORTED_MODULE_2__["render"](_jreact__WEBPACK_IMPORTED_MODULE_2__["createElement"](_components_jreactCounter__WEBPACK_IMPORTED_MODULE_4__["default"], {
+        key: "test",
+        className: 'titi',
+        times: 666,
+    }, 'JReact Span'), $('#jreact-counter'));
 });
 
 

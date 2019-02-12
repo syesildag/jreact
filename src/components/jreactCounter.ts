@@ -2,11 +2,10 @@
 import * as JReact from '../jreact';
 
 export interface CounterProps extends JReact.Props {
-  state?: CounterState
+  times?: number,
 }
 
-export interface CounterState {
-  times?: number,
+export interface CounterState extends CounterProps {
   loading?: boolean
 }
 
@@ -21,6 +20,10 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
 
   constructor(props: CounterProps) {
     super(props);
+    this.state = {
+      times: this.props.times,
+      loading: false,
+    }
   }
 
   //public shouldComponentUpdate(nextProps: any, nextState: any) {
@@ -40,9 +43,9 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
   private times(times: number = 0, action: JReact.Action<CounterActionType, any>): number {
     switch (action.type) {
       case CounterActionType.INCREMENT:
-        return times >= 10 ? times : times + 1;
+        return times + 1;
       case CounterActionType.DECREMENT:
-        return times <= 0 ? times : times - 1;
+        return times - 1;
       case CounterActionType.INCREMENT_ASYNC:
         setTimeout(() => {
           this.dispatch(new JReact.Action(CounterActionType.INCREMENT));
@@ -71,7 +74,7 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
       JReact.createElement('button', {
         key: 2,
         className: 'btn btn-primary',
-        onClick: () => {
+        click: () => {
           this.dispatch(new JReact.Action(CounterActionType.DECREMENT_ASYNC));
         }
       }, 'DEC'),
@@ -79,10 +82,10 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
       JReact.createElement('button', {
         key: 3,
         className: 'btn btn-primary',
-        onClick: () => {
+        click: () => {
           this.dispatch(new JReact.Action(CounterActionType.INCREMENT_ASYNC));
         }
-      }, 'INC')
+      } as JReact.DOMAttributes, 'INC')
     );
   }
 }

@@ -123,10 +123,13 @@ export function NOOP() {
 
 export function createElement<C extends Component<any>>(
   jrc: { new(props: ComponentProps<C>): C },
-  props: ComponentProps<C>, ...args: ComponentArray): C;
+  props: ComponentProps<C>,
+  ...args: ComponentArray): C;
 
 export function createElement<P extends DOMAttributes>(
-  jrc: string, props: P, ...args: ComponentArray): ComponentDOM<P>;
+  jrc: string,
+  props: P,
+  ...args: ComponentArray): ComponentDOM<P>;
 
 export function createElement<P extends Props, C extends Component<P>>(
   jrc: string | { new(props: P): C },
