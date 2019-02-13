@@ -16,13 +16,13 @@ export default class ValidForm<P extends JReact.Props, S, A, L> extends JReact.C
     this.validate(prevProps, prevState);
   }
 
+  // noinspection JSUnusedLocalSymbols
   protected validate(prevProps?: P, prevState?: S) {
     let el = this.getElement();
 
     el.children('[' + JReact.DATA_PATTERN + ']').each((index: number, elem: Element) => {
       let
         regexp: RegExp,
-        name: string,
         inputValue: any,
         $elem = jQuery(elem),
         pattern = $elem.attr(JReact.DATA_PATTERN);

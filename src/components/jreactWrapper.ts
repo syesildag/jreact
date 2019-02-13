@@ -12,7 +12,7 @@ export interface WrapperProps<E extends ReactElement<any, any>> extends JReact.P
 
 export default class Wrapper<E extends ReactElement<any, any>> extends JReact.Component<WrapperProps<E>> {
 
-  private reactInstance: React.RefObject<ReactElementType<E>>;
+  private readonly reactInstance: React.RefObject<ReactElementType<E>>;
 
   constructor(props: WrapperProps<E>) {
     super(props);
@@ -38,7 +38,7 @@ export default class Wrapper<E extends ReactElement<any, any>> extends JReact.Co
   private renderReactElement() {
     let clone = React.createElement(
       this.props.reactElement.type,
-      Utils.extend(this.props.reactElement.props, { ref: this.reactInstance }),
+      Utils.extend(this.props.reactElement.props, {ref: this.reactInstance}),
       this.props.reactElement.props.children
     );
     ReactDOM.render(clone, this.getElement()[0]);

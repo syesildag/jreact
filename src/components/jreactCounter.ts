@@ -26,9 +26,6 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
     }
   }
 
-  //public shouldComponentUpdate(nextProps: any, nextState: any) {
-  //  return !nextState || (nextState.times >= 0 && nextState.times <= 10);
-  //}
   private loading(loading: boolean = false, action: JReact.Action<CounterActionType, any>): boolean {
     switch (action.type) {
       case CounterActionType.INCREMENT_ASYNC:
@@ -40,18 +37,22 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
     }
   }
 
+  // noinspection FunctionWithMultipleReturnPointsJS
   private times(times: number = 0, action: JReact.Action<CounterActionType, any>): number {
+    // noinspection FallThroughInSwitchStatementJS
     switch (action.type) {
       case CounterActionType.INCREMENT:
         return times + 1;
       case CounterActionType.DECREMENT:
         return times - 1;
       case CounterActionType.INCREMENT_ASYNC:
+        // noinspection MagicNumberJS
         setTimeout(() => {
           this.dispatch(new JReact.Action(CounterActionType.INCREMENT));
         }, 1000);
         return times;
       case CounterActionType.DECREMENT_ASYNC:
+        // noinspection MagicNumberJS
         setTimeout(() => {
           this.dispatch(new JReact.Action(CounterActionType.DECREMENT));
         }, 1000);
@@ -68,8 +69,11 @@ export default class Counter extends JReact.Component<CounterProps, CounterState
   }
 
   public render() {
-    return JReact.createElement('div', { className: 'counter-div' },
-      JReact.createElement('h2', { key: 1, className: 'counter-span' }, this.state.times + (this.state.loading ? '...' : '')),
+    return JReact.createElement('div', {className: 'counter-div'},
+      JReact.createElement('h2', {
+        key: 1,
+        className: 'counter-span'
+      }, this.state.times + (this.state.loading ? '...' : '')),
 
       JReact.createElement('button', {
         key: 2,

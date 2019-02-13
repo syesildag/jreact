@@ -3,6 +3,7 @@
 import * as Utils from './utils';
 
 export enum TYPE {
+  // noinspection JSUnusedGlobalSymbols
   GET, POST, PUT, DELETE
 }
 

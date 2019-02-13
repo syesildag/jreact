@@ -5,15 +5,17 @@
  */
 
 export class InvocationContext {
+  // noinspection OverlyComplexFunctionJS
   constructor(private index: number,
-    private target: any,
-    private propertyKey: string,
-    private descriptor: TypedPropertyDescriptor<Function>,
-    private method: Function,
-    private args: Array<any>,
-    private result: any) {
+              private target: any,
+              private propertyKey: string,
+              private descriptor: TypedPropertyDescriptor<Function>,
+              private method: Function,
+              private args: Array<any>,
+              private result: any) {
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public getIndex() {
     return this.index;
   }
@@ -26,10 +28,12 @@ export class InvocationContext {
     return this.propertyKey;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public getDescriptor() {
     return this.descriptor;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public getMethod() {
     return this.method;
   }
@@ -38,6 +42,7 @@ export class InvocationContext {
     return this.args;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public getResult() {
     return this.result;
   }
@@ -51,6 +56,7 @@ export class InvocationContext {
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 export function interceptors<I extends Interceptor>(...interceptors: Array<I>) {
   let interceptor: I;
   //INIT
@@ -82,6 +88,7 @@ export class Interceptor implements Functions.Interceptor<InvocationContext>, Fu
     return this.enabled;
   }
 
+  // noinspection JSUnusedGlobalSymbols
   public setEnabled(enabled: boolean) {
     this.enabled = enabled;
   }
@@ -91,12 +98,13 @@ export class Interceptor implements Functions.Interceptor<InvocationContext>, Fu
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class Logger extends Interceptor {
 
   private readonly start: string;
   private readonly end: string;
 
-  constructor({ start = '', end = '' } = {}) {
+  constructor({start = '', end = ''} = {}) {
     super();
     this.start = start;
     this.end = end;
@@ -104,20 +112,21 @@ export class Logger extends Interceptor {
 
   public intercept(ctx: InvocationContext) {
     let result: any,
-      { start, end } = this,
+      {start, end} = this,
       target = ctx.getTarget(),
       propertyKey = ctx.getPropertyKey(),
       args = ctx.getArgs();
 
     if (this.start && this.isEnabled())
-      console.log({ start, target, propertyKey, args });
+      console.log({start, target, propertyKey, args});
     result = ctx.proceedWithCaution();
     if (this.end && this.isEnabled())
-      console.log({ end, target, propertyKey, args, result });
+      console.log({end, target, propertyKey, args, result});
     return result;
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class Profiler extends Interceptor {
 
   constructor(private name: string) {
@@ -125,7 +134,7 @@ export class Profiler extends Interceptor {
   }
 
   public intercept(ctx: InvocationContext) {
-    let result: any, { name } = this;
+    let result: any, {name} = this;
     if (this.isEnabled()) console.time(name);
     result = ctx.proceedWithCaution();
     if (this.isEnabled()) console.timeEnd(name);

@@ -11,7 +11,7 @@ abstract class AbstractWidget<O, P extends WidgetProps<O>> extends JReact.Compon
 
   protected CONTAINER: string;
 
-  constructor(props: P) {
+  protected constructor(props: P) {
     super(props);
 
     this.CONTAINER = 'jreact-widget-' + this.getWidgetName() + '-container';
@@ -61,7 +61,7 @@ abstract class AbstractWidget<O, P extends WidgetProps<O>> extends JReact.Compon
 
   public render() {
     return this.getContainer()(
-      Utils.extend(this.getContainerProps(), { ref: this.CONTAINER }),
+      Utils.extend(this.getContainerProps(), {ref: this.CONTAINER}),
       ...this.props.children
     );
   }
@@ -71,6 +71,7 @@ abstract class AbstractWidget<O, P extends WidgetProps<O>> extends JReact.Compon
 export interface ResizableProps extends WidgetProps<JQueryUI.ResizableOptions> {
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class Resizable extends AbstractWidget<JQueryUI.ResizableOptions, ResizableProps> {
   constructor(props: ResizableProps) {
     super(props);
@@ -99,6 +100,7 @@ export class Resizable extends AbstractWidget<JQueryUI.ResizableOptions, Resizab
     };
   }
 
+  // noinspection FunctionWithMultipleReturnPointsJS
   protected getContainerProps() {
     if (this.state)
       return {
@@ -106,7 +108,7 @@ export class Resizable extends AbstractWidget<JQueryUI.ResizableOptions, Resizab
           width: this.state.width,
           height: this.state.height
         }
-      }
+      };
 
     return super.getContainerProps();
   }
@@ -116,6 +118,7 @@ export class Resizable extends AbstractWidget<JQueryUI.ResizableOptions, Resizab
 export interface AccordionProps extends WidgetProps<JQueryUI.AccordionOptions> {
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class Accordion extends AbstractWidget<JQueryUI.AccordionOptions, AccordionProps> {
   constructor(props: AccordionProps) {
     super(props);
@@ -128,9 +131,11 @@ export class Accordion extends AbstractWidget<JQueryUI.AccordionOptions, Accordi
 
 export interface CustomComboboxProps extends WidgetProps<any> {
   onChange?(e: JQueryEventObject): void;
+
   codeSelect?: boolean;
 }
 
+// noinspection JSUnusedGlobalSymbols
 export class CustomCombobox extends AbstractWidget<any, CustomComboboxProps> {
   constructor(props: CustomComboboxProps) {
     super(props);
