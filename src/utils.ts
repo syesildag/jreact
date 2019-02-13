@@ -280,7 +280,7 @@ export function isObject(value: any): value is any {
  * @param {*} value Reference to check.
  * @returns {boolean} True if `value` is a `String`.
  */
-export function isString(value: any) {
+export function isString(value: any): value is string {
   return typeof value === 'string';
 }
 
