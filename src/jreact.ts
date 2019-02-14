@@ -337,7 +337,7 @@ export function renderDOM<P extends Props>(comp: Component<P>, m: JQuery): JQuer
   return el;
 }
 
-function unmountElement(jc: JQuery, bDoNotRemove?: boolean) {
+export function unmountElement(jc: JQuery, bDoNotRemove?: boolean) {
   let old = getInstance(jc);
   if (old)
     old.componentWillUnmount();
