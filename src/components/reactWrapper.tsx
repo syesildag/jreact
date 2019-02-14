@@ -12,6 +12,7 @@ export interface WrapperProps<E extends JReact.Component<any> = JReact.Component
   element: E;
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class Wrapper<E extends JReact.Component<any> = JReact.Component<any>> extends React.Component<WrapperProps<E>> {
 
   private jQueryElement: JQuery;
@@ -53,6 +54,7 @@ export default class Wrapper<E extends JReact.Component<any> = JReact.Component<
   }
 
   private renderReactElement() {
+    // noinspection AssignmentResultUsedJS
     this.props.element.props = {...this.props.element.props, ...{ref: (el: JQuery) => this.jQueryElement = el}};
     JReact.render(this.props.element, this.getSpanElement());
   }
