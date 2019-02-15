@@ -1,6 +1,10 @@
 /// <reference path="./functions.ts"/>
 
+import * as React from "react";
+
 import ReactElement = React.ReactElement;
+
+export type ReactInstance<P> = React.Component<P> | Element;
 
 export type ReactElementProps<T extends ReactElement<any, any>> = T extends ReactElement<infer X, any> ? X : never;
 
