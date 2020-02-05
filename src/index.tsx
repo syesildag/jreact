@@ -7,7 +7,7 @@ import Counter from './components/jreactCounter';
 let onClick = (e: React.MouseEvent) => {
   alert('clicked');
   console.dir(e);
-}
+};
 
 jQuery(($) => {
   JReact.render(JReact.createElement(
@@ -19,11 +19,9 @@ jQuery(($) => {
     'JReact Span'
   ), $('#container'));
 
-  JReact.render(JReact.createElement<Wrapper<any>>(
-    Wrapper,
-    {
+  JReact.render(JReact.createElement<Wrapper<any>>(Wrapper, {
       key: "test",
-      reactElement: React.createElement('div',
+      element: React.createElement('div',
         {
           onClick: onClick,
           key: "bk",
@@ -33,9 +31,7 @@ jQuery(($) => {
     }
   ), $('#react-wrapper'));
 
-  JReact.render(JReact.createElement(
-    Counter,
-    {
+  JReact.render(JReact.createElement(Counter, {
       key: "test",
       className: 'titi',
       times: 666,

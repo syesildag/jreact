@@ -1,34 +1,39 @@
-const path = require('path');
-module.exports = {
-    mode: 'development',
+const webpack = require("webpack");
+const path = require("path");
+
+let config = env => {
+
+  let NODE_ENV = env.NODE_ENV;
+  let development = NODE_ENV === "development";
+  let production = NODE_ENV === "production";
+
+  return {
     entry: {
-        index: path.join(__dirname, 'src', 'index.tsx')
+      index: path.join(__dirname, 'src', 'index.tsx')
     },
-    output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
-    },
+    devtool: development ? "source-map" : false,
     module: {
-        rules: [{
-                test: /.tsx?$/,
-                include: [
-                    path.resolve(__dirname, 'src')
-                ],
-                exclude: [
-                    path.resolve(__dirname, 'node_modules')
-                ],
-                loader: 'awesome-typescript-loader'
-            },
-            {
-                enforce: "pre",
-                test: /\.js$/,
-                loader: "source-map-loader"
-            }
-        ]
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: 'ts-loader',
+          exclude: /node_modules/
+        }
+      ]
     },
     resolve: {
-        extensions: ['.json', '.js', '.jsx', '.ts', '.tsx', '.css']
+      extensions: ['.json', '.js', '.jsx', '.ts', '.tsx', '.css']
     },
-    devtool: 'source-map',
-    watch: true
+    output: {
+      filename: '[name].js',
+      path: path.resolve(__dirname, 'dist')
+    },
+    mode: NODE_ENV,
+    watch: development,
+    watchOptions: {
+      poll: 1000 // Check for changes every second
+    }
+  }
 };
+
+module.exports = config;
